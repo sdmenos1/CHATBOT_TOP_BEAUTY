@@ -1,0 +1,4 @@
+node_modules
+.env
+# Google Cloud credentials
+src/credentials/google.json
