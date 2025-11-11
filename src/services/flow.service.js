@@ -126,19 +126,19 @@ async function handleInitialState(user) {
 
 ¿En qué local deseas registrar la cita de la clienta?
 
-a) Los Olivos
-b) Trujillo
-c) Arequipa
-d) Chimbote
-e) Pucallpa
-f) Medellín
-g) Chico
-h) Chapinero
-i) Los Leones
-j) Providencia
-k) Lince
-l) Luxury
-m) Mor
+A) LOS OLIVOS
+B) TRUJILLO
+C) AREQUIPO
+D) CHIMBOTE
+E) PUCALLPA
+F) MEDELLIN
+G) CHICO
+H) CHAPINERO
+I) LOS LEONES
+J) PROVIDENCIA
+K) LINCE
+L) LUXURY
+M) MOR
 
 Por favor, responde con la letra o el nombre del local.`;
 
