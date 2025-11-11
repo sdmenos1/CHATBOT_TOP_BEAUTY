@@ -26,43 +26,41 @@ function parseIncomingMessage(req) {
 function normalizeLocationSelection(text) {
   const normalized = text.trim().toLowerCase();
 
-  if (normalized === "1" || normalized.includes("chimbote")) {
-    return "Chimbote";
-  }
-  if (normalized === "2" || normalized.includes("trujillo")) {
-    return "Trujillo";
-  }
-  if (normalized === "3" || normalized.includes("olivos")) {
-    return "Olivos";
-  }
-  if (normalized === "4" || normalized.includes("arequipa")) {
-    return "Arequipa";
-  }
-  if (normalized === "5" || normalized.includes("lince")) {
-    return "Lince";
-  }
-  if (normalized === "6" || normalized.includes("pucallpa")) {
-    return "Pucallpa";
-  }
+  // Map letters a–m to the requested order
+  const letter = normalized.length === 1 ? normalized : null;
 
-  if (normalized === "7" || normalized.includes("bogota") || normalized.includes("bogotá")) {
-    return "Bogota";
-  }
-  if (normalized === "8" || normalized.includes("luxury")) {
-    return "Luxury";
-  }
-  if (normalized === "9" || normalized.includes("medellin") || normalized.includes("medellín")) {
-    return "Medellin";
-  }
-  if (normalized === "10" || normalized.includes("chapineros") || normalized.includes("chapinero")) {
-    return "Chapineros";
-  }
-  if (normalized === "11" || normalized.includes("los leones") || normalized.includes("losleones") || normalized.includes("los  leones")) {
-    return "Los Leones";
-  }
-  if (normalized === "12" || normalized.includes("providencia")) {
-    return "Providencia";
-  }
+  const byLetter = {
+    a: "Los Olivos",
+    b: "Trujillo",
+    c: "Arequipa",
+    d: "Chimbote",
+    e: "Pucallpa",
+    f: "Medellín",
+    g: "Chico",
+    h: "Chapinero",
+    i: "Los Leones",
+    j: "Providencia",
+    k: "Lince",
+    l: "Luxury",
+    m: "Mor",
+  };
+
+  if (letter && byLetter[letter]) return byLetter[letter];
+
+  // Name-based matching (with/without accents, variants)
+  if (normalized.includes("los olivos") || normalized === "olivos") return "Los Olivos";
+  if (normalized.includes("trujillo") || normalized.includes("trujilllo")) return "Trujillo";
+  if (normalized.includes("arequipa")) return "Arequipa";
+  if (normalized.includes("chimbote")) return "Chimbote";
+  if (normalized.includes("pucallpa")) return "Pucallpa";
+  if (normalized.includes("medellin") || normalized.includes("medellín")) return "Medellín";
+  if (normalized.includes("chico")) return "Chico";
+  if (normalized.includes("chapinero") || normalized.includes("chapineros")) return "Chapinero";
+  if (normalized.replace(/\s+/g, " ").includes("los leones")) return "Los Leones";
+  if (normalized.includes("providencia")) return "Providencia";
+  if (normalized.includes("lince")) return "Lince";
+  if (normalized.includes("luxury")) return "Luxury";
+  if (normalized === "mor" || normalized.includes(" mor")) return "Mor";
 
   return null;
 }

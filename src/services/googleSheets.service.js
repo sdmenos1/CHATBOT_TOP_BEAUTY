@@ -171,7 +171,8 @@ async function addRowToSheet({
       case "Trujillo":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_TRUJILLO;
         break;
-      case "Olivos":
+      case "Olivos": // backward compatibility
+      case "Los Olivos":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_OLIVOS;
         break;
       case "Arequipa":
@@ -183,16 +184,15 @@ async function addRowToSheet({
       case "Pucallpa":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_PUCALLPA;
         break;
-      case "Bogota":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_BOGOTA;
-        break;
       case "Luxury":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_LUXURY;
         break;
-      case "Medellin":
+      case "Medellin": // legacy without accent
+      case "Medellín":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_MEDELLIN;
         break;
-      case "Chapineros":
+      case "Chapineros": // legacy plural
+      case "Chapinero":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_CHAPINEROS;
         break;
       case "Los Leones":
@@ -200,6 +200,12 @@ async function addRowToSheet({
         break;
       case "Providencia":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_PROVIDENCIA;
+        break;
+      case "Chico":
+        spreadsheetId = process.env.GOOGLE_SHEETS_ID_CHICO;
+        break;
+      case "Mor":
+        spreadsheetId = process.env.GOOGLE_SHEETS_ID_MOR;
         break;
       default:
         spreadsheetId = process.env.GOOGLE_SHEETS_ID;

@@ -43,6 +43,8 @@ const userSchema = new mongoose.Schema(
         "Chapineros",
         "Los Leones",
         "Providencia",
+        "Mor",
+        "Chico",
         null,
       ],
       default: null,

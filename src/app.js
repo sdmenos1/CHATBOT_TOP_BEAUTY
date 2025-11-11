@@ -142,6 +142,16 @@ async function startServer() {
         process.env.GOOGLE_SHEETS_ID_PROVIDENCIA ? "✅ Set" : "⚠️  Not set"
       }`
     );
+    console.log(
+      `   - GOOGLE_SHEETS_ID_MOR: ${
+        process.env.GOOGLE_SHEETS_ID_MOR ? "✅ Set" : "⚠️  Not set"
+      }`
+    );
+    console.log(
+      `   - GOOGLE_SHEETS_ID_CHICO: ${
+        process.env.GOOGLE_SHEETS_ID_CHICO ? "✅ Set" : "⚠️  Not set"
+      }`
+    );
     console.log(`\n✨ Server ready to receive WhatsApp messages from advisors!`);
     console.log(`📝 System designed for internal use - advisors register client appointments`);
   });

@@ -126,21 +126,21 @@ async function handleInitialState(user) {
 
 ¿En qué local deseas registrar la cita de la clienta?
 
-1️⃣ Chimbote
-2️⃣ Trujillo
-3️⃣ Olivos
-4️⃣ Arequipa
-5️⃣ Lince
-6️⃣ Pucallpa
+a) Los Olivos
+b) Trujillo
+c) Arequipa
+d) Chimbote
+e) Pucallpa
+f) Medellín
+g) Chico
+h) Chapinero
+i) Los Leones
+j) Providencia
+k) Lince
+l) Luxury
+m) Mor
 
-7️⃣ Bogota
-8️⃣ Luxury
-9️⃣ Medellin
-🔟 Chapineros
-1️⃣1️⃣ Los Leones
-1️⃣2️⃣ Providencia
-
-Por favor, responde con el número o el nombre del local.`;
+Por favor, responde con la letra o el nombre del local.`;
 
   await whatsappService.sendMessage(user.phoneNumber, welcomeMessage);
   user.state = "WAITING_LOCATION";
@@ -152,7 +152,20 @@ async function handleLocationSelection(user, text) {
   if (!location) {
     await whatsappService.sendMessage(
       user.phoneNumber,
-      "Por favor, selecciona un local válido:\n\n1️⃣ Chimbote\n2️⃣ Trujillo\n3️⃣ Olivos\n4️⃣ Arequipa\n5️⃣ Lince\n6️⃣ Pucallpa\n7️⃣ Bogota\n8️⃣ Luxury\n9️⃣ Medellin\n🔟 Chapineros\n1️⃣1️⃣ Los Leones\n1️⃣2️⃣ Providencia"
+      "Por favor, selecciona un local válido:\n\n"
+        + "a) Los Olivos\n"
+        + "b) Trujillo\n"
+        + "c) Arequipa\n"
+        + "d) Chimbote\n"
+        + "e) Pucallpa\n"
+        + "f) Medellín\n"
+        + "g) Chico\n"
+        + "h) Chapinero\n"
+        + "i) Los Leones\n"
+        + "j) Providencia\n"
+        + "k) Lince\n"
+        + "l) Luxury\n"
+        + "m) Mor"
     );
     return;
   }
@@ -257,7 +270,20 @@ async function handleConfirmation(user, text) {
     user.state = "WAITING_LOCATION";
     await whatsappService.sendMessage(
       user.phoneNumber,
-      "Entendido. Vamos a empezar de nuevo.\n\n¿En qué local deseas registrar la cita?\n\n1️⃣ Chimbote\n2️⃣ Trujillo\n3️⃣ Olivos\n4️⃣ Arequipa\n5️⃣ Lince\n6️⃣ Pucallpa"
+      "Entendido. Vamos a empezar de nuevo.\n\n¿En qué local deseas registrar la cita?\n\n"
+        + "a) Los Olivos\n"
+        + "b) Trujillo\n"
+        + "c) Arequipa\n"
+        + "d) Chimbote\n"
+        + "e) Pucallpa\n"
+        + "f) Medellín\n"
+        + "g) Chico\n"
+        + "h) Chapinero\n"
+        + "i) Los Leones\n"
+        + "j) Providencia\n"
+        + "k) Lince\n"
+        + "l) Luxury\n"
+        + "m) Mor"
     );
     return;
   }
