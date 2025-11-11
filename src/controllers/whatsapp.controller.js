@@ -1,6 +1,8 @@
 const flowService = require("../services/flow.service");
 const { parseIncomingMessage } = require("../utils/messageParser");
 
+// REFACTOR NOTE: Concurrency handling is already correct - webhook responds immediately
+// and message processing happens asynchronously
 async function handleWebhookVerification(req, res) {
   try {
     const mode = req.query["hub.mode"];
@@ -25,7 +27,6 @@ async function handleIncomingMessage(req, res) {
     const parsedMessage = parseIncomingMessage(req);
 
     if (!parsedMessage) {
-      // WhatsApp a veces manda notificaciones que no son mensajes, se ignoran
       return res.sendStatus(200);
     }
 
@@ -35,10 +36,10 @@ async function handleIncomingMessage(req, res) {
       messageId: parsedMessage.messageId,
     });
 
-    // 👉 Responde inmediatamente a Meta (para evitar timeout)
+    // CONCURRENCY FIX: Respond immediately to Meta (prevents timeout)
     res.sendStatus(200);
 
-    // 👉 Luego procesa el mensaje de forma asíncrona (sin esperar respuesta)
+    // CONCURRENCY FIX: Process message asynchronously (doesn't block other requests)
     flowService
       .processMessage(
         parsedMessage.from,

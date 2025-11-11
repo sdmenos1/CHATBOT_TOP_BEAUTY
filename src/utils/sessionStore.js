@@ -1,3 +1,4 @@
+// REFACTOR NOTE: Removed googleTokens and wantsCalendarIntegration fields - no longer needed
 const sessions = new Map();
 
 function getSession(phoneNumber) {
@@ -9,16 +10,12 @@ function createSession(phoneNumber) {
     phoneNumber,
     name: null,
     state: "INITIAL",
+    selectedLocation: null,
     selectedService: null,
+    servicePrice: null,
     collectedPhone: null,
     appointmentDate: null,
     parsedAppointmentDate: null,
-    googleTokens: {
-      access_token: null,
-      refresh_token: null,
-      expiry_date: null,
-    },
-    wantsCalendarIntegration: null,
     lastMessageAt: new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -46,11 +43,12 @@ function resetSession(phoneNumber) {
   }
 
   session.state = "INITIAL";
+  session.selectedLocation = null;
   session.selectedService = null;
+  session.servicePrice = null;
   session.collectedPhone = null;
   session.appointmentDate = null;
   session.parsedAppointmentDate = null;
-  session.wantsCalendarIntegration = null;
   session.name = null;
   session.updatedAt = new Date();
 

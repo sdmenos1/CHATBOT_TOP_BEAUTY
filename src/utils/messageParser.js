@@ -15,7 +15,7 @@ function parseIncomingMessage(req) {
       timestamp: message.timestamp,
       text: message.text?.body || "",
       type: message.type,
-      name: value.contacts?.[0]?.profile?.name || "Usuario",
+      name: value.contacts?.[0]?.profile?.name || "Asesora",
     };
   } catch (error) {
     console.error("Error parsing message:", error);
@@ -43,6 +43,25 @@ function normalizeLocationSelection(text) {
   }
   if (normalized === "6" || normalized.includes("pucallpa")) {
     return "Pucallpa";
+  }
+
+  if (normalized === "7" || normalized.includes("bogota") || normalized.includes("bogotá")) {
+    return "Bogota";
+  }
+  if (normalized === "8" || normalized.includes("luxury")) {
+    return "Luxury";
+  }
+  if (normalized === "9" || normalized.includes("medellin") || normalized.includes("medellín")) {
+    return "Medellin";
+  }
+  if (normalized === "10" || normalized.includes("chapineros") || normalized.includes("chapinero")) {
+    return "Chapineros";
+  }
+  if (normalized === "11" || normalized.includes("los leones") || normalized.includes("losleones") || normalized.includes("los  leones")) {
+    return "Los Leones";
+  }
+  if (normalized === "12" || normalized.includes("providencia")) {
+    return "Providencia";
   }
 
   return null;

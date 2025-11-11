@@ -1,12 +1,12 @@
 const chrono = require("chrono-node");
 const chronoEs = require("chrono-node/es");
-const { format, addHours, parse, isValid, setHours, setMinutes } = require("date-fns");
+
+// REFACTOR NOTE: Removed createCalendarDateTime function - no longer needed without Google Calendar
 
 function parseNaturalDate(text, referenceDate = new Date()) {
   console.log('🔍 Parseando texto:', text);
   console.log('📆 Fecha de referencia:', referenceDate.toLocaleString('es-PE'));
   
-  // Usar chrono en modo español (casual para lenguaje natural)
   const results = chronoEs.casual.parse(text, referenceDate, { 
     forwardDate: true
   });
@@ -31,34 +31,25 @@ function parseNaturalDate(text, referenceDate = new Date()) {
       fechaRaw: result.start.date().toISOString()
     });
     
-    // Verificar si la hora fue especificada en el texto
     const hasTime = result.start.isCertain('hour');
     const hasDay = result.start.isCertain('day');
     const hasMonth = result.start.isCertain('month');
     
-    // Obtener los componentes de la fecha parseada
     const year = result.start.get('year');
-    const month = result.start.get('month') - 1; // JavaScript months are 0-indexed
+    const month = result.start.get('month') - 1;
     const day = result.start.get('day');
-    const hour = hasTime ? result.start.get('hour') : 9; // 9 AM por defecto si no hay hora
+    const hour = hasTime ? result.start.get('hour') : 9;
     const minute = result.start.get('minute') || 0;
     const second = 0;
     
-    // Crear la fecha usando el constructor de Date con componentes individuales
-    // Esto asegura que la fecha se cree en el timezone local del servidor
     let parsedDate = new Date(year, month, day, hour, minute, second);
     
-    // VALIDACIÓN IMPORTANTE: Verificar que la fecha parseada coincida con lo que el usuario pidió
     const refDay = referenceDate.getDate();
     const refMonth = referenceDate.getMonth();
     
-    // Si el usuario especificó un día diferente al de hoy, asegurarse de que se respete
     if (hasDay && hasMonth) {
       console.log('✅ Usuario especificó día y mes explícitamente');
-      // Si el día parseado es igual al día de referencia pero el usuario dijo un día diferente,
-      // es probable que chrono lo haya interpretado mal
       if (parsedDate.getDate() === refDay && parsedDate.getMonth() === refMonth) {
-        // Revisar el texto original para ver si menciona un número de día diferente
         const dayMatch = text.match(/(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i);
         if (dayMatch) {
           const dayFromText = parseInt(dayMatch[1]);
@@ -71,10 +62,8 @@ function parseNaturalDate(text, referenceDate = new Date()) {
       }
     }
     
-    // Validar que la fecha parseada sea futura
     if (parsedDate <= referenceDate) {
       console.log('⚠️  La fecha parseada no es futura, ajustando...');
-      // Si es el mismo día pero hora pasada, mover al siguiente día
       if (parsedDate.getDate() === referenceDate.getDate() && 
           parsedDate.getMonth() === referenceDate.getMonth()) {
         parsedDate.setDate(parsedDate.getDate() + 1);
@@ -131,7 +120,6 @@ function formatDateForUser(date) {
     "diciembre",
   ];
 
-  // Asegurarnos de trabajar con la fecha correcta
   const localDate = new Date(date);
   
   const dayName = days[localDate.getDay()];
@@ -152,18 +140,7 @@ function formatDateForUser(date) {
   return `${dayName} ${dayNumber} de ${monthName} de ${year} a las ${hours12}:${minutes} ${ampm}`;
 }
 
-function createCalendarDateTime(appointmentDate, durationHours = 1) {
-  const startDateTime = new Date(appointmentDate);
-  const endDateTime = addHours(startDateTime, durationHours);
-
-  return {
-    start: startDateTime.toISOString(),
-    end: endDateTime.toISOString(),
-  };
-}
-
 module.exports = {
   parseNaturalDate,
   formatDateForUser,
-  createCalendarDateTime,
 };

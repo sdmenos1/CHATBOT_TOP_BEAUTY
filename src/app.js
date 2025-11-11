@@ -3,7 +3,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const whatsappRoutes = require("./routes/whatsapp.routes");
-const googleRoutes = require("./routes/google.routes");
+
+// REFACTOR NOTE: Removed Google OAuth routes import - no longer needed
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,18 +15,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.json({
     status: "active",
-    message: "WhatsApp Chatbot API with Google Calendar Integration",
-    version: "2.0.0",
+    message: "WhatsApp Chatbot API - Internal Advisor System",
+    version: "3.0.0",
     features: [
       "WhatsApp messaging",
-      "Appointment booking",
-      "Google Calendar integration",
+      "Appointment registration for advisors",
+      "Google Sheets integration",
     ],
   });
 });
 
 app.use("/", whatsappRoutes);
-app.use("/", googleRoutes);
+// REFACTOR NOTE: Removed Google OAuth routes - no longer needed
 
 async function connectDatabase() {
   try {
@@ -55,7 +56,7 @@ async function startServer() {
   await connectDatabase();
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`\n🚀 WhatsApp Chatbot Server running on port ${PORT}`);
+    console.log(`\n🚀 WhatsApp Chatbot Server (Advisor System) running on port ${PORT}`);
     console.log(`📍 Webhook URL: http://localhost:${PORT}/webhook`);
     console.log(`\n📋 Required environment variables:`);
     console.log(`   - PORT: ${process.env.PORT || "using default 3000"}`);
@@ -75,49 +76,87 @@ async function startServer() {
         process.env.MONGO_URI ? "✅ Set" : "⚠️  Optional (not set)"
       }`
     );
-    console.log(`\n📅 Google Calendar Integration:`);
+    console.log(`\n📊 Google Sheets Integration:`);
     console.log(
-      `   - GOOGLE_CLIENT_ID: ${
-        process.env.GOOGLE_CLIENT_ID ? "✅ Set" : "⚠️  Optional (not set)"
+      `   - GOOGLE_CREDENTIALS_PATH: ${
+        process.env.GOOGLE_CREDENTIALS_PATH ? "✅ Set" : "⚠️  Using default path"
       }`
     );
     console.log(
-      `   - GOOGLE_CLIENT_SECRET: ${
-        process.env.GOOGLE_CLIENT_SECRET ? "✅ Set" : "⚠️  Optional (not set)"
+      `   - GOOGLE_SHEETS_ID_CHIMBOTE: ${
+        process.env.GOOGLE_SHEETS_ID_CHIMBOTE ? "✅ Set" : "⚠️  Not set"
       }`
     );
     console.log(
-      `   - GOOGLE_REDIRECT_URI: ${
-        process.env.GOOGLE_REDIRECT_URI ? "✅ Set" : "⚠️  Optional (not set)"
+      `   - GOOGLE_SHEETS_ID_TRUJILLO: ${
+        process.env.GOOGLE_SHEETS_ID_TRUJILLO ? "✅ Set" : "⚠️  Not set"
       }`
     );
     console.log(
-      `   - PUBLIC_URL: ${
-        process.env.PUBLIC_URL ? "✅ Set" : "⚠️  Auto-detected from environment"
+      `   - GOOGLE_SHEETS_ID_OLIVOS: ${
+        process.env.GOOGLE_SHEETS_ID_OLIVOS ? "✅ Set" : "⚠️  Not set"
       }`
     );
-    console.log(`\n💡 To test locally with ngrok:`);
-    console.log(`   1. Run: ngrok http ${PORT}`);
-    console.log(`   2. Copy the ngrok URL`);
     console.log(
-      `   3. Set webhook in Meta for Developers: <ngrok-url>/webhook`
+      `   - GOOGLE_SHEETS_ID_AREQUIPA: ${
+        process.env.GOOGLE_SHEETS_ID_AREQUIPA ? "✅ Set" : "⚠️  Not set"
+      }`
     );
-    console.log(`\n✨ Server ready to receive WhatsApp messages!`);
+    console.log(
+      `   - GOOGLE_SHEETS_ID_LINCE: ${
+        process.env.GOOGLE_SHEETS_ID_LINCE ? "✅ Set" : "⚠️  Not set"
+      }`
+    );
+    console.log(
+      `   - GOOGLE_SHEETS_ID_PUCALLPA: ${
+        process.env.GOOGLE_SHEETS_ID_PUCALLPA ? "✅ Set" : "⚠️  Not set"
+      }`
+    );
+    console.log(
+      `   - GOOGLE_SHEETS_ID_BOGOTA: ${
+        process.env.GOOGLE_SHEETS_ID_BOGOTA ? "✅ Set" : "⚠️  Not set"
+      }`
+    );
+    console.log(
+      `   - GOOGLE_SHEETS_ID_LUXURY: ${
+        process.env.GOOGLE_SHEETS_ID_LUXURY ? "✅ Set" : "⚠️  Not set"
+      }`
+    );
+    console.log(
+      `   - GOOGLE_SHEETS_ID_MEDELLIN: ${
+        process.env.GOOGLE_SHEETS_ID_MEDELLIN ? "✅ Set" : "⚠️  Not set"
+      }`
+    );
+    console.log(
+      `   - GOOGLE_SHEETS_ID_CHAPINEROS: ${
+        process.env.GOOGLE_SHEETS_ID_CHAPINEROS ? "✅ Set" : "⚠️  Not set"
+      }`
+    );
+    console.log(
+      `   - GOOGLE_SHEETS_ID_LOS_LEONES: ${
+        process.env.GOOGLE_SHEETS_ID_LOS_LEONES ? "✅ Set" : "⚠️  Not set"
+      }`
+    );
+    console.log(
+      `   - GOOGLE_SHEETS_ID_PROVIDENCIA: ${
+        process.env.GOOGLE_SHEETS_ID_PROVIDENCIA ? "✅ Set" : "⚠️  Not set"
+      }`
+    );
+    console.log(`\n✨ Server ready to receive WhatsApp messages from advisors!`);
+    console.log(`📝 System designed for internal use - advisors register client appointments`);
   });
 }
 
 startServer();
-// Detecta errores no capturados en promesas (como async/await fallidos)
+
 process.on("unhandledRejection", (error) => {
   console.error("❌ Unhandled Promise Rejection:", error);
 });
 
-// Detecta excepciones no controladas (errores que revientan el proceso)
 process.on("uncaughtException", (error) => {
   console.error("💥 Uncaught Exception:", error);
 });
 
-// Captura señales de detención del proceso
 process.on("SIGTERM", () => {
   console.log("🛑 Server stopped gracefully (SIGTERM)");
   process.exit(0);
@@ -126,8 +165,4 @@ process.on("SIGTERM", () => {
 process.on("SIGINT", () => {
   console.log("🛑 Server interrupted (CTRL+C)");
   process.exit(0);
-});
-
-process.on("unhandledRejection", (error) => {
-  console.error("Unhandled Promise Rejection:", error);
 });

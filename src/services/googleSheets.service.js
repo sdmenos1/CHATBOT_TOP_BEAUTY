@@ -40,9 +40,6 @@ function initializeSheetsClient() {
   }
 }
 
-/**
- * Encuentra la primera fila vacía en una hoja
- */
 async function findNextEmptyRow(spreadsheetId, sheetName) {
   try {
     const range = `${sheetName}!A:A`;
@@ -52,21 +49,16 @@ async function findNextEmptyRow(spreadsheetId, sheetName) {
     });
 
     const rows = response.data.values || [];
-    // La siguiente fila vacía es el largo del array + 1 (porque los arrays empiezan en 0)
     const nextRow = rows.length + 1;
     
     console.log(`📍 Siguiente fila vacía en ${sheetName}: ${nextRow}`);
     return nextRow;
   } catch (error) {
     console.error("❌ Error buscando fila vacía:", error.message);
-    // Si hay error, asumir que es la fila 2 (después del header)
     return 2;
   }
 }
 
-/**
- * Obtiene el ID de la hoja (sheet) por nombre
- */
 async function getSheetId(spreadsheetId, sheetName) {
   try {
     const response = await sheetsClient.spreadsheets.get({
@@ -89,19 +81,14 @@ async function getSheetId(spreadsheetId, sheetName) {
   }
 }
 
-/**
- * Copia la validación de datos (data validation) de una fila a otra
- */
 async function copyDataValidation(spreadsheetId, sheetId, sourceRow, targetRow) {
   try {
-    // Primero, obtener la validación de datos de la fila fuente
     const response = await sheetsClient.spreadsheets.get({
       spreadsheetId,
       ranges: [],
       includeGridData: true,
     });
 
-    // Buscar la hoja específica
     const sheet = response.data.sheets.find(s => s.properties.sheetId === sheetId);
     
     if (!sheet || !sheet.data || !sheet.data[0] || !sheet.data[0].rowData) {
@@ -110,8 +97,6 @@ async function copyDataValidation(spreadsheetId, sheetId, sourceRow, targetRow) 
     }
 
     const rowData = sheet.data[0].rowData;
-    
-    // Buscar la fila fuente (restamos 1 porque el índice empieza en 0)
     const sourceRowData = rowData[sourceRow - 1];
     
     if (!sourceRowData || !sourceRowData.values) {
@@ -119,7 +104,6 @@ async function copyDataValidation(spreadsheetId, sheetId, sourceRow, targetRow) 
       return false;
     }
 
-    // Crear las requests para copiar la validación
     const requests = [];
     
     sourceRowData.values.forEach((cell, colIndex) => {
@@ -179,7 +163,6 @@ async function addRowToSheet({
       return { success: false, error: "Google Sheets no configurado" };
     }
 
-    // Seleccionar el ID de Google Sheet según el local
     let spreadsheetId;
     switch (local) {
       case "Chimbote":
@@ -200,6 +183,24 @@ async function addRowToSheet({
       case "Pucallpa":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_PUCALLPA;
         break;
+      case "Bogota":
+        spreadsheetId = process.env.GOOGLE_SHEETS_ID_BOGOTA;
+        break;
+      case "Luxury":
+        spreadsheetId = process.env.GOOGLE_SHEETS_ID_LUXURY;
+        break;
+      case "Medellin":
+        spreadsheetId = process.env.GOOGLE_SHEETS_ID_MEDELLIN;
+        break;
+      case "Chapineros":
+        spreadsheetId = process.env.GOOGLE_SHEETS_ID_CHAPINEROS;
+        break;
+      case "Los Leones":
+        spreadsheetId = process.env.GOOGLE_SHEETS_ID_LOS_LEONES;
+        break;
+      case "Providencia":
+        spreadsheetId = process.env.GOOGLE_SHEETS_ID_PROVIDENCIA;
+        break;
       default:
         spreadsheetId = process.env.GOOGLE_SHEETS_ID;
     }
@@ -213,14 +214,11 @@ async function addRowToSheet({
 
     console.log(`📄 Intentando agregar cita a Google Sheets del local: ${local}...`);
 
-    // Usar la fecha como nombre de la hoja (formato: DD-MM-YYYY)
     const sheetName = fecha.replace(/\//g, "-");
     console.log(`📅 Guardando en la hoja: ${sheetName}`);
 
-    // 1. Encontrar la siguiente fila vacía
     const nextRow = await findNextEmptyRow(spreadsheetId, sheetName);
 
-    // 2. Agregar los datos en la fila específica (sin INSERT_ROWS)
     const values = [[nombre, telefono, servicio, precio, fecha, hora, estado]];
     const range = `${sheetName}!A${nextRow}:G${nextRow}`;
 
@@ -236,13 +234,10 @@ async function addRowToSheet({
     console.log("✅ Cita guardada correctamente en Google Sheets");
     console.log(`   📊 Fila agregada: ${range}`);
 
-    // 3. Copiar la validación de datos de una fila existente (por ejemplo, la fila 2)
-    // Solo si hay más de 1 fila (es decir, si no es la primera cita)
     if (nextRow > 2) {
       const sheetId = await getSheetId(spreadsheetId, sheetName);
       if (sheetId !== null) {
-        // Copiar validación de la fila anterior (o de la fila 2 si quieres usar siempre el template)
-        const sourceRow = 2; // Fila 2 como template (después del header en fila 1)
+        const sourceRow = 2;
         await copyDataValidation(spreadsheetId, sheetId, sourceRow, nextRow);
       }
     } else {

@@ -2,12 +2,10 @@ const mongoose = require("mongoose");
 const User = require("../models/user.model");
 const whatsappService = require("./whatsapp.service");
 const sessionStore = require("../utils/sessionStore");
-const googleAuthService = require("./googleAuth.service");
 const { addRowToSheet } = require("./googleSheets.service");
 const {
   parseNaturalDate,
   formatDateForUser,
-  createCalendarDateTime,
 } = require("../utils/dateParser");
 const {
   normalizeServiceSelection,
@@ -16,6 +14,12 @@ const {
   isValidName,
   normalizeLocationSelection,
 } = require("../utils/messageParser");
+
+// REFACTOR NOTE: Removed all Google Calendar integration
+// - Removed googleAuthService import
+// - Removed createCalendarDateTime import
+// - Removed WAITING_CALENDAR state handling
+// - Flow now goes: Date confirmation → Save to Sheets → Completed
 
 function isMongoConnected() {
   return mongoose.connection.readyState === 1;
@@ -98,10 +102,6 @@ async function processMessage(from, text, messageId) {
         await handleDateInput(user, text);
         break;
 
-      case "WAITING_CALENDAR":
-        await handleCalendarChoice(user, text);
-        break;
-
       case "COMPLETED":
         await handleCompletedState(user, text);
         break;
@@ -120,10 +120,11 @@ async function processMessage(from, text, messageId) {
   }
 }
 
+// REFACTOR NOTE: Changed message from customer-facing to advisor-facing
 async function handleInitialState(user) {
-  const welcomeMessage = `👋 ¡Hola! Bienvenido al centro de reservas.
+  const welcomeMessage = `👋 ¡Hola! Bienvenida al sistema de registro de citas.
 
-¿En qué local deseas agendar tu cita?
+¿En qué local deseas registrar la cita de la clienta?
 
 1️⃣ Chimbote
 2️⃣ Trujillo
@@ -131,6 +132,13 @@ async function handleInitialState(user) {
 4️⃣ Arequipa
 5️⃣ Lince
 6️⃣ Pucallpa
+
+7️⃣ Bogota
+8️⃣ Luxury
+9️⃣ Medellin
+🔟 Chapineros
+1️⃣1️⃣ Los Leones
+1️⃣2️⃣ Providencia
 
 Por favor, responde con el número o el nombre del local.`;
 
@@ -144,7 +152,7 @@ async function handleLocationSelection(user, text) {
   if (!location) {
     await whatsappService.sendMessage(
       user.phoneNumber,
-      "Por favor, selecciona un local válido:\n\n1️⃣ Chimbote\n2️⃣ Trujillo\n3️⃣ Olivos\n4️⃣ Arequipa\n5️⃣ Lince\n6️⃣ Pucallpa"
+      "Por favor, selecciona un local válido:\n\n1️⃣ Chimbote\n2️⃣ Trujillo\n3️⃣ Olivos\n4️⃣ Arequipa\n5️⃣ Lince\n6️⃣ Pucallpa\n7️⃣ Bogota\n8️⃣ Luxury\n9️⃣ Medellin\n🔟 Chapineros\n1️⃣1️⃣ Los Leones\n1️⃣2️⃣ Providencia"
     );
     return;
   }
@@ -152,9 +160,10 @@ async function handleLocationSelection(user, text) {
   user.selectedLocation = location;
   user.state = "WAITING_SERVICE";
 
-  const serviceMessage = `Perfecto, has seleccionado el local de *${location}*.
+  // REFACTOR NOTE: Changed to advisor-facing language
+  const serviceMessage = `Perfecto, local seleccionado: *${location}*.
 
-¿Qué servicio deseas realizarte hoy?
+¿Qué servicio se realizará la clienta?
 
 1️⃣ Botox - S/100
 2️⃣ Bioplastia reconstructora - S/150
@@ -183,9 +192,10 @@ async function handleServiceSelection(user, text) {
   user.servicePrice = result.price;
   user.state = "WAITING_NAME";
 
+  // REFACTOR NOTE: Changed to advisor-facing language
   await whatsappService.sendMessage(
     user.phoneNumber,
-    `Perfecto, has seleccionado: *${result.service}* - S/${result.price}\n\n¿Cuál es tu nombre completo?`
+    `Servicio seleccionado: *${result.service}* - S/${result.price}\n\nPor favor, ingresa el *nombre completo de la clienta*.`
   );
 }
 
@@ -201,9 +211,10 @@ async function handleNameInput(user, text) {
   user.name = text.trim();
   user.state = "WAITING_PHONE";
 
+  // REFACTOR NOTE: Changed to advisor-facing language
   await whatsappService.sendMessage(
     user.phoneNumber,
-    `Gracias, ${user.name}.\n\n¿Cuál es tu número de teléfono de contacto?`
+    `Nombre registrado: ${user.name}\n\nAhora ingresa el *número de teléfono de la clienta*.`
   );
 }
 
@@ -219,9 +230,10 @@ async function handlePhoneInput(user, text) {
   user.collectedPhone = text.trim();
   user.state = "WAITING_CONFIRMATION";
 
-  const confirmationMessage = `Gracias, estos son tus datos:
+  // REFACTOR NOTE: Changed to advisor-facing language
+  const confirmationMessage = `Perfecto. Verifica los datos de la clienta:
 
-📋 *Resumen de tu información:*
+📋 *Resumen de la información:*
 
 📍 Local: ${user.selectedLocation}
 👤 Nombre: ${user.name}
@@ -229,7 +241,7 @@ async function handlePhoneInput(user, text) {
 💅 Servicio: ${user.selectedService}
 💵 Precio: S/${user.servicePrice}
 
-¿Están correctos estos datos? (Sí / No)`;
+¿Los datos son correctos? (Sí / No)`;
 
   await whatsappService.sendMessage(user.phoneNumber, confirmationMessage);
 }
@@ -250,18 +262,21 @@ async function handleConfirmation(user, text) {
     user.state = "WAITING_LOCATION";
     await whatsappService.sendMessage(
       user.phoneNumber,
-      "Entendido. Vamos a empezar de nuevo.\n\n¿En qué local deseas agendar tu cita?\n\n1️⃣ Chimbote\n2️⃣ Trujillo\n3️⃣ Olivos\n4️⃣ Arequipa\n5️⃣ Lince\n6️⃣ Pucallpa"
+      "Entendido. Vamos a empezar de nuevo.\n\n¿En qué local deseas registrar la cita?\n\n1️⃣ Chimbote\n2️⃣ Trujillo\n3️⃣ Olivos\n4️⃣ Arequipa\n5️⃣ Lince\n6️⃣ Pucallpa"
     );
     return;
   }
 
   user.state = "WAITING_DATE";
+  // REFACTOR NOTE: Changed to advisor-facing language
   await whatsappService.sendMessage(
     user.phoneNumber,
-    '¡Excelente! 📅\n\nPor favor, indícame la fecha y hora que prefieres para tu cita.\n\nEjemplo: "15 de enero a las 3:00 PM" o "2024-01-15 15:00"'
+    '¡Perfecto! 📅\n\nAhora ingresa la *fecha y hora de la cita*.\n\nEjemplos:\n- "15 de enero a las 3:00 PM"\n- "mañana a las 10:00 AM"\n- "sábado a las 2:00 PM"'
   );
 }
 
+// REFACTOR NOTE: Completely refactored - no longer asks about Google Calendar
+// Now saves directly to Google Sheets after date confirmation
 async function handleDateInput(user, text) {
   const parsedDate = parseNaturalDate(text);
 
@@ -286,47 +301,8 @@ async function handleDateInput(user, text) {
 
   const formattedDate = formatDateForUser(parsedDate);
 
-  if (isMongoConnected()) {
-    user.state = "WAITING_CALENDAR";
-    await whatsappService.sendMessage(
-      user.phoneNumber,
-      `Perfecto, tu cita será el *${formattedDate}*.\n\n¿Deseas agregar esta cita a tu Google Calendar? 📅\n\nResponde *Sí* o *No*.`
-    );
-  } else {
-    user.state = "COMPLETED";
-    const confirmationMessage = `🎉 ¡Tu cita ha sido agendada exitosamente!
-
-📋 *Detalles de tu cita:*
-
-📍 Local: ${user.selectedLocation}
-👤 Nombre: ${user.name}
-📞 Teléfono: ${user.collectedPhone}
-💅 Servicio: ${user.selectedService}
-💵 Precio: S/${user.servicePrice}
-📅 Fecha y hora: ${formattedDate}
-
-Te esperamos, ${user.name}. ¡Gracias por confiar en nosotros!
-
-Si necesitas hacer otra reserva, envía "Hola" nuevamente.`;
-
-    await whatsappService.sendMessage(user.phoneNumber, confirmationMessage);
-  }
-}
-
-async function handleCalendarChoice(user, text) {
-  const wantsCalendar = normalizeConfirmation(text);
-
-  if (wantsCalendar === null) {
-    await whatsappService.sendMessage(
-      user.phoneNumber,
-      "Por favor, responde *Sí* o *No* para agregar la cita a tu Google Calendar."
-    );
-    return;
-  }
-
-  user.wantsCalendarIntegration = wantsCalendar;
-
-  // 🧾 Guardar cita en Google Sheets SIEMPRE (independiente de la elección de calendario)
+  // REFACTOR NOTE: Save to Google Sheets immediately after date confirmation
+  // No Google Calendar integration anymore
   try {
     const horaFormateada = user.parsedAppointmentDate
       ? user.parsedAppointmentDate.toLocaleTimeString("es-PE", {
@@ -342,6 +318,7 @@ async function handleCalendarChoice(user, text) {
           day: "2-digit",
         })
       : "";
+    
     const result = await addRowToSheet({
       local: user.selectedLocation,
       nombre: user.name,
@@ -352,75 +329,28 @@ async function handleCalendarChoice(user, text) {
       hora: horaFormateada,
       estado: "Confirmado",
     });
+
     if (!result.success) {
       console.error("❌ Fallo al guardar cita en Google Sheets:", result.error);
-      console.error(
-        "⚠️  La cita del usuario fue confirmada pero NO se guardó en la hoja"
+      user.state = "COMPLETED";
+      
+      // REFACTOR NOTE: Changed to advisor-facing language
+      await whatsappService.sendMessage(
+        user.phoneNumber,
+        `⚠️ La cita fue registrada pero hubo un problema al guardar en Google Sheets.\n\n📋 *Datos de la cita:*\n\n📍 Local: ${user.selectedLocation}\n👤 Nombre: ${user.name}\n📞 Teléfono: ${user.collectedPhone}\n💅 Servicio: ${user.selectedService}\n💵 Precio: S/${user.servicePrice}\n📅 Fecha y hora: ${formattedDate}\n\n⚠️ Por favor, registra manualmente en la hoja de cálculo.\n\nPara registrar otra cita, envía "Hola".`
       );
+      return;
     }
   } catch (error) {
     console.error("❌ Error al guardar cita en Google Sheets:", error);
   }
 
-  if (!wantsCalendar) {
-    user.state = "COMPLETED";
-    const formattedDate = formatDateForUser(user.parsedAppointmentDate);
+  user.state = "COMPLETED";
 
-    const confirmationMessage = `🎉 ¡Tu cita ha sido agendada exitosamente!
+  // REFACTOR NOTE: Changed to advisor-facing language - removed Calendar mention
+  const confirmationMessage = `✅ ¡Cita registrada exitosamente!
 
-📋 *Detalles de tu cita:*
-
-📍 Local: ${user.selectedLocation}
-👤 Nombre: ${user.name}
-📞 Teléfono: ${user.collectedPhone}
-💅 Servicio: ${user.selectedService}
-💵 Precio: S/${user.servicePrice}
-📅 Fecha y hora: ${formattedDate}
-
-Te esperamos, ${user.name}. ¡Gracias por confiar en nosotros!
-
-Si necesitas hacer otra reserva, envía "Hola" nuevamente.`;
-
-    await whatsappService.sendMessage(user.phoneNumber, confirmationMessage);
-    return;
-  }
-
-  if (!googleAuthService.hasValidTokens(user)) {
-    const domain = googleAuthService.getPublicUrl();
-    const authUrl = `${domain}/google/auth?phone=${encodeURIComponent(
-      user.phoneNumber
-    )}`;
-
-    await whatsappService.sendMessage(
-      user.phoneNumber,
-      `Para agregar la cita a tu Google Calendar, necesito que autorices el acceso.\n\n🔗 Haz clic en este enlace para autorizar:\n${authUrl}\n\nDespués de autorizar, regresa aquí y envía la fecha de tu cita nuevamente.`
-    );
-
-    user.state = "WAITING_DATE";
-    return;
-  }
-
-  try {
-    const { start, end } = createCalendarDateTime(
-      user.parsedAppointmentDate,
-      1
-    );
-
-    const eventDetails = {
-      summary: user.selectedService,
-      description: `Cita para ${user.name}\nTeléfono: ${user.collectedPhone}`,
-      startDateTime: start,
-      endDateTime: end,
-    };
-
-    await googleAuthService.createCalendarEvent(user, eventDetails);
-
-    user.state = "COMPLETED";
-    const formattedDate = formatDateForUser(user.parsedAppointmentDate);
-
-    const confirmationMessage = `🎉 ¡Tu cita ha sido agendada exitosamente!
-
-📋 *Detalles de tu cita:*
+📋 *Resumen de la cita registrada:*
 
 📍 Local: ${user.selectedLocation}
 👤 Nombre: ${user.name}
@@ -429,38 +359,11 @@ Si necesitas hacer otra reserva, envía "Hola" nuevamente.`;
 💵 Precio: S/${user.servicePrice}
 📅 Fecha y hora: ${formattedDate}
 
-✅ La cita ha sido añadida a tu Google Calendar con recordatorio 10 minutos antes.
+La cita ha sido guardada en Google Sheets.
 
-Te esperamos, ${user.name}. ¡Gracias por confiar en nosotros!
+Para registrar otra cita, envía "Hola".`;
 
-Si necesitas hacer otra reserva, envía "Hola" nuevamente.`;
-
-    await whatsappService.sendMessage(user.phoneNumber, confirmationMessage);
-  } catch (error) {
-    console.error("Error creando evento en Google Calendar:", error);
-
-    if (error.message.includes("Token expirado")) {
-      const domain = googleAuthService.getPublicUrl();
-      const authUrl = `${domain}/google/auth?phone=${encodeURIComponent(
-        user.phoneNumber
-      )}`;
-
-      await whatsappService.sendMessage(
-        user.phoneNumber,
-        `Tu autorización de Google Calendar expiró. Por favor, autoriza nuevamente:\n${authUrl}`
-      );
-
-      user.state = "WAITING_DATE";
-    } else {
-      user.state = "COMPLETED";
-      const formattedDate = formatDateForUser(user.parsedAppointmentDate);
-
-      await whatsappService.sendMessage(
-        user.phoneNumber,
-        `Tu cita fue agendada pero hubo un problema al agregar el evento a Google Calendar.\n\n📋 *Detalles de tu cita:*\n\n👤 Nombre: ${user.name}\n📅 Fecha y hora: ${formattedDate}\n\nTe esperamos, ${user.name}.`
-      );
-    }
-  }
+  await whatsappService.sendMessage(user.phoneNumber, confirmationMessage);
 }
 
 async function handleCompletedState(user, text) {
@@ -474,9 +377,10 @@ async function handleCompletedState(user, text) {
     resetUserConversation(user);
     await handleInitialState(user);
   } else {
+    // REFACTOR NOTE: Changed to advisor-facing language
     await whatsappService.sendMessage(
       user.phoneNumber,
-      'Tu cita ya fue agendada. Si deseas hacer otra reserva, envía "Hola".'
+      'La cita ya fue registrada. Para registrar otra cita, envía "Hola".'
     );
   }
 }

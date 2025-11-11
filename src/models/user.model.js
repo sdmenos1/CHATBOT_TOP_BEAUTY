@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+// REFACTOR NOTE: Removed all Google Calendar related fields (googleTokens, wantsCalendarIntegration)
+// Removed WAITING_CALENDAR state - flow now goes directly from date to completion
 const userSchema = new mongoose.Schema(
   {
     phoneNumber: {
@@ -22,7 +24,6 @@ const userSchema = new mongoose.Schema(
         "WAITING_PHONE",
         "WAITING_CONFIRMATION",
         "WAITING_DATE",
-        "WAITING_CALENDAR",
         "COMPLETED",
       ],
       default: "INITIAL",
@@ -55,15 +56,6 @@ const userSchema = new mongoose.Schema(
     },
     parsedAppointmentDate: {
       type: Date,
-      default: null,
-    },
-    googleTokens: {
-      access_token: { type: String, default: null },
-      refresh_token: { type: String, default: null },
-      expiry_date: { type: Number, default: null },
-    },
-    wantsCalendarIntegration: {
-      type: Boolean,
       default: null,
     },
     lastMessageAt: {
