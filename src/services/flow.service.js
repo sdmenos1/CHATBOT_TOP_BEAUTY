@@ -235,7 +235,6 @@ async function handlePhoneInput(user, text) {
 👤 Nombre: ${user.name}
 📞 Teléfono: ${user.collectedPhone}
 💅 Servicio: ${user.selectedService}
-💵 Precio: S/${user.servicePrice}
 
 ¿Los datos son correctos? (Sí / No)`;
 
