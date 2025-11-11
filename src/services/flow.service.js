@@ -165,12 +165,9 @@ async function handleLocationSelection(user, text) {
 
 ¿Qué servicio se realizará la clienta?
 
-1️⃣ Botox - S/100
-2️⃣ Bioplastia reconstructora - S/150
-3️⃣ Bioplastia organica - S/200
-4️⃣ Bioplastia Top Láser - S/250
-5️⃣ Semipermanente - S/300
-6️⃣ Dual - S/300
+1️⃣ Alisado
+2️⃣ Laceado
+3️⃣ Color
 
 Por favor, responde con el número o el nombre del servicio.`;
 
@@ -183,19 +180,18 @@ async function handleServiceSelection(user, text) {
   if (!result) {
     await whatsappService.sendMessage(
       user.phoneNumber,
-      "Por favor, selecciona una opción válida:\n\n1️⃣ Botox - S/100\n2️⃣ Bioplastia reconstructora - S/150\n3️⃣ Bioplastia organica - S/200\n4️⃣ Bioplastia Top Láser - S/250\n5️⃣ Semipermanente - S/300\n6️⃣ Dual - S/300"
+      "Por favor, selecciona una opción válida:\n\n1️⃣ Alisado\n2️⃣ Laceado\n3️⃣ Color"
     );
     return;
   }
 
   user.selectedService = result.service;
-  user.servicePrice = result.price;
   user.state = "WAITING_NAME";
 
   // REFACTOR NOTE: Changed to advisor-facing language
   await whatsappService.sendMessage(
     user.phoneNumber,
-    `Servicio seleccionado: *${result.service}* - S/${result.price}\n\nPor favor, ingresa el *nombre completo de la clienta*.`
+    `Servicio seleccionado: *${result.service}*\n\nPor favor, ingresa el *nombre completo de la clienta*.`
   );
 }
 
@@ -324,7 +320,7 @@ async function handleDateInput(user, text) {
       nombre: user.name,
       telefono: user.collectedPhone,
       servicio: user.selectedService,
-      precio: user.servicePrice,
+      precio: "",
       fecha: fechaFormateada,
       hora: horaFormateada,
       estado: "Confirmado",
@@ -337,7 +333,7 @@ async function handleDateInput(user, text) {
       // REFACTOR NOTE: Changed to advisor-facing language
       await whatsappService.sendMessage(
         user.phoneNumber,
-        `⚠️ La cita fue registrada pero hubo un problema al guardar en Google Sheets.\n\n📋 *Datos de la cita:*\n\n📍 Local: ${user.selectedLocation}\n👤 Nombre: ${user.name}\n📞 Teléfono: ${user.collectedPhone}\n💅 Servicio: ${user.selectedService}\n💵 Precio: S/${user.servicePrice}\n📅 Fecha y hora: ${formattedDate}\n\n⚠️ Por favor, registra manualmente en la hoja de cálculo.\n\nPara registrar otra cita, envía "Hola".`
+        `⚠️ La cita fue registrada pero hubo un problema al guardar en Google Sheets.\n\n📋 *Datos de la cita:*\n\n📍 Local: ${user.selectedLocation}\n👤 Nombre: ${user.name}\n📞 Teléfono: ${user.collectedPhone}\n💅 Servicio: ${user.selectedService}\n📅 Fecha y hora: ${formattedDate}\n\n⚠️ Por favor, registra manualmente en la hoja de cálculo.\n\nPara registrar otra cita, envía "Hola".`
       );
       return;
     }
@@ -356,7 +352,6 @@ async function handleDateInput(user, text) {
 👤 Nombre: ${user.name}
 📞 Teléfono: ${user.collectedPhone}
 💅 Servicio: ${user.selectedService}
-💵 Precio: S/${user.servicePrice}
 📅 Fecha y hora: ${formattedDate}
 
 La cita ha sido guardada en Google Sheets.

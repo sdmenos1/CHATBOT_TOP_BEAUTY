@@ -30,7 +30,21 @@ const userSchema = new mongoose.Schema(
     },
     selectedLocation: {
       type: String,
-      enum: ["Chimbote", "Trujillo", "Olivos", "Arequipa", "Lince", "Pucallpa", null],
+      enum: [
+        "Chimbote",
+        "Trujillo",
+        "Olivos",
+        "Arequipa",
+        "Lince",
+        "Pucallpa",
+        "Bogota",
+        "Luxury",
+        "Medellin",
+        "Chapineros",
+        "Los Leones",
+        "Providencia",
+        null,
+      ],
       default: null,
     },
     selectedSheetId: {
@@ -39,7 +53,7 @@ const userSchema = new mongoose.Schema(
     },
     selectedService: {
       type: String,
-      enum: ["Botox", "Bioplastia reconstructora", "Bioplastia organica", "Bioplastia Top Láser", "Semipermanente", "Dual", null],
+      enum: ["Alisado", "Laceado", "Color", null],
       default: null,
     },
     servicePrice: {

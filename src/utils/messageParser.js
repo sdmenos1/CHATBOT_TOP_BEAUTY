@@ -70,36 +70,14 @@ function normalizeLocationSelection(text) {
 function normalizeServiceSelection(text) {
   const normalized = text.trim().toLowerCase();
 
-  if (normalized === "1" || normalized.includes("botox")) {
-    return { service: "Botox", price: 100 };
+  if (normalized === "1" || normalized.includes("alisado")) {
+    return { service: "Alisado" };
   }
-  if (
-    normalized === "2" ||
-    normalized.includes("bioplastia reconstructora") ||
-    (normalized.includes("bioplastia") && normalized.includes("reconstructora"))
-  ) {
-    return { service: "Bioplastia reconstructora", price: 150 };
+  if (normalized === "2" || normalized.includes("laceado")) {
+    return { service: "Laceado" };
   }
-  if (
-    normalized === "3" ||
-    normalized.includes("bioplastia organica") ||
-    (normalized.includes("bioplastia") && normalized.includes("organica"))
-  ) {
-    return { service: "Bioplastia organica", price: 200 };
-  }
-  if (
-    normalized === "4" ||
-    normalized.includes("bioplastia top laser") ||
-    normalized.includes("bioplastia top láser") ||
-    (normalized.includes("bioplastia") && normalized.includes("top"))
-  ) {
-    return { service: "Bioplastia Top Láser", price: 250 };
-  }
-  if (normalized === "5" || normalized.includes("semipermanente")) {
-    return { service: "Semipermanente", price: 300 };
-  }
-  if (normalized === "6" || normalized.includes("dual")) {
-    return { service: "Dual", price: 300 };
+  if (normalized === "3" || normalized.includes("color")) {
+    return { service: "Color" };
   }
 
   return null;
