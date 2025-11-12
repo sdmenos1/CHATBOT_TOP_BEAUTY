@@ -1,21 +1,19 @@
 const chrono = require("chrono-node");
 const chronoEs = require("chrono-node/es");
 
-// REFACTOR NOTE: Removed createCalendarDateTime function - no longer needed without Google Calendar
-
 function parseNaturalDate(text, referenceDate = new Date()) {
   console.log('🔍 Parseando texto:', text);
   console.log('📆 Fecha de referencia:', referenceDate.toLocaleString('es-PE'));
-  
-  const results = chronoEs.casual.parse(text, referenceDate, { 
+
+  const results = chronoEs.casual.parse(text, referenceDate, {
     forwardDate: true
   });
 
   console.log('🔎 Resultados de chrono:', results.length > 0 ? 'Encontrado' : 'No encontrado');
-  
+
   if (results.length > 0) {
     const result = results[0];
-    
+
     console.log('📋 Componentes detectados por chrono:', {
       year: result.start.get('year'),
       month: result.start.get('month'),
@@ -30,31 +28,21 @@ function parseNaturalDate(text, referenceDate = new Date()) {
       indexMatch: result.index,
       fechaRaw: result.start.date().toISOString()
     });
-    
+
     const hasTime = result.start.isCertain('hour');
     const hasDay = result.start.isCertain('day');
     const hasMonth = result.start.isCertain('month');
-    
-    const year = result.start.get('year');
-    const month = result.start.get('month') - 1;
-    const day = result.start.get('day');
-    const hour = hasTime ? result.start.get('hour') : 9;
-    const minute = result.start.get('minute') || 0;
-    const second = 0;
-    
-    let parsedDate = new Date(year, month, day, hour, minute, second);
 
-    // Normalizar a zona horaria de Lima (UTC-5) independientemente del servidor
-    const serverOffsetMin = new Date().getTimezoneOffset(); // minutos respecto a UTC
-    const limaOffsetMin = 300; // UTC-5 -> 300 minutos
-    const deltaMin = limaOffsetMin - serverOffsetMin;
-    if (deltaMin !== 0) {
-      parsedDate = new Date(parsedDate.getTime() + deltaMin * 60000);
-    }
-    
+    // 🚀 CAMBIO PRINCIPAL: usar la fecha base en UTC y convertirla a hora local Lima
+    const fechaUTC = result.start.date();
+    const parsedDate = new Date(
+      fechaUTC.getTime() - fechaUTC.getTimezoneOffset() * 60000
+    );
+    // ✅ Ahora parsedDate es hora local de Lima correctamente (sin doble ajuste)
+
     const refDay = referenceDate.getDate();
     const refMonth = referenceDate.getMonth();
-    
+
     if (hasDay && hasMonth) {
       console.log('✅ Usuario especificó día y mes explícitamente');
       if (parsedDate.getDate() === refDay && parsedDate.getMonth() === refMonth) {
@@ -69,17 +57,17 @@ function parseNaturalDate(text, referenceDate = new Date()) {
         }
       }
     }
-    
+
     const now = new Date();
     const timeDiff = parsedDate.getTime() - now.getTime();
     const minutesDiff = timeDiff / (1000 * 60);
-    
+
     console.log('⏰ Comparando fechas:', {
       fechaActual: now.toLocaleString('es-PE'),
-      fechaParseada: parsedDate.toLocaleString('es-PE'),
+      fechaParseada: parsedDate.toLocaleString('es-PE', { timeZone: 'America/Lima' }),
       diferenciaMinutos: Math.round(minutesDiff)
     });
-    // Si la hora ya pasó hoy, ajustamos al día siguiente para evitar rechazar
+
     if (minutesDiff < 0 &&
         parsedDate.getDate() === now.getDate() &&
         parsedDate.getMonth() === now.getMonth() &&
@@ -88,25 +76,25 @@ function parseNaturalDate(text, referenceDate = new Date()) {
       parsedDate.setDate(parsedDate.getDate() + 1);
       console.log('✅ Fecha ajustada:', parsedDate.toLocaleString('es-PE'));
     }
-    
+
     if (!hasTime) {
       console.log('⚠️  No se detectó hora en el texto, usando hora por defecto 9:00 AM');
     }
-    
+
     console.log('✅ Fecha parseada final:', {
       textoOriginal: text,
       fechaParseada: parsedDate.toISOString(),
       fechaLocal: parsedDate.toLocaleString('es-PE', { timeZone: 'America/Lima' }),
       tieneTiempo: hasTime,
-      componentes: { 
-        year: parsedDate.getFullYear(), 
-        month: parsedDate.getMonth() + 1, 
-        day: parsedDate.getDate(), 
-        hour: parsedDate.getHours(), 
-        minute: parsedDate.getMinutes() 
+      componentes: {
+        year: parsedDate.getFullYear(),
+        month: parsedDate.getMonth() + 1,
+        day: parsedDate.getDate(),
+        hour: parsedDate.getHours(),
+        minute: parsedDate.getMinutes()
       }
     });
-    
+
     return parsedDate;
   }
 
@@ -116,31 +104,15 @@ function parseNaturalDate(text, referenceDate = new Date()) {
 
 function formatDateForUser(date) {
   const days = [
-    "domingo",
-    "lunes",
-    "martes",
-    "miércoles",
-    "jueves",
-    "viernes",
-    "sábado",
+    "domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"
   ];
   const months = [
-    "enero",
-    "febrero",
-    "marzo",
-    "abril",
-    "mayo",
-    "junio",
-    "julio",
-    "agosto",
-    "septiembre",
-    "octubre",
-    "noviembre",
-    "diciembre",
+    "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
   ];
 
   const localDate = new Date(date);
-  
+
   const dayName = days[localDate.getDay()];
   const dayNumber = localDate.getDate();
   const monthName = months[localDate.getMonth()];

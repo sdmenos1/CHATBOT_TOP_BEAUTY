@@ -310,10 +310,8 @@ async function handleDateInput(user, text) {
   }
 
   // ✅ Convertimos la fecha UTC que devuelve Chrono a hora local (Lima)
-  const fechaUTC = parsedDate;
-  const fechaLocal = new Date(
-    fechaUTC.getTime() - fechaUTC.getTimezoneOffset() * 60000
-  );
+ // La fecha ya viene correctamente ajustada desde parseNaturalDate
+const fechaLocal = parsedDate;
 
   const now = new Date();
   const timeDiff = fechaLocal.getTime() - now.getTime();
