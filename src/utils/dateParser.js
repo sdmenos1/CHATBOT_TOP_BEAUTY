@@ -3,7 +3,7 @@ const chronoEs = require("chrono-node/es");
 
 function parseNaturalDate(text, referenceDate = new Date()) {
   console.log('🔍 Parseando texto:', text);
-  console.log('📆 Fecha de referencia:', referenceDate.toLocaleString('es-PE'));
+  console.log('📆 Fecha de referencia:', referenceDate.toLocaleString('es-PE', { timeZone: 'America/Lima' }));
 
   const results = chronoEs.casual.parse(text, referenceDate, {
     forwardDate: true
@@ -25,27 +25,26 @@ function parseNaturalDate(text, referenceDate = new Date()) {
       isCertainYear: result.start.isCertain('year'),
       isCertainHour: result.start.isCertain('hour'),
       textoMatch: result.text,
-      indexMatch: result.index,
-      fechaRaw: result.start.date().toISOString()
+      indexMatch: result.index
     });
 
     const hasTime = result.start.isCertain('hour');
     const hasDay = result.start.isCertain('day');
     const hasMonth = result.start.isCertain('month');
 
-    // 🚀 SOLUCIÓN: Crear la fecha usando los componentes en hora local de Lima
-    // Chrono parsea los componentes correctamente, pero result.start.date() devuelve UTC
-    // Por eso creamos manualmente la fecha con los componentes
+    const hour = result.start.get('hour');
+    const minute = result.start.get('minute');
+
     const parsedDate = new Date(
       result.start.get('year'),
-      result.start.get('month') - 1, // Month es 0-indexed en JavaScript
+      result.start.get('month') - 1,
       result.start.get('day'),
-      result.start.get('hour') || 9, // Default 9 AM si no hay hora
-      result.start.get('minute') || 0,
+      hour !== null && hour !== undefined ? hour : 9,
+      minute !== null && minute !== undefined ? minute : 0,
       0
     );
 
-    console.log('✅ Fecha creada manualmente en hora local:', {
+    console.log('✅ Fecha creada:', {
       componentes: {
         year: result.start.get('year'),
         month: result.start.get('month'),
@@ -53,8 +52,7 @@ function parseNaturalDate(text, referenceDate = new Date()) {
         hour: result.start.get('hour'),
         minute: result.start.get('minute')
       },
-      fechaCreada: parsedDate.toLocaleString('es-PE'),
-      fechaISO: parsedDate.toISOString()
+      fechaCreada: parsedDate.toLocaleString('es-PE', { timeZone: 'America/Lima' })
     });
 
     const refDay = referenceDate.getDate();
@@ -80,18 +78,24 @@ function parseNaturalDate(text, referenceDate = new Date()) {
     const minutesDiff = timeDiff / (1000 * 60);
 
     console.log('⏰ Comparando fechas:', {
-      fechaActual: now.toLocaleString('es-PE'),
-      fechaParseada: parsedDate.toLocaleString('es-PE'),
-      diferenciaMinutos: Math.round(minutesDiff)
+      fechaActual: now.toLocaleString('es-PE', { timeZone: 'America/Lima' }),
+      fechaParseada: parsedDate.toLocaleString('es-PE', { timeZone: 'America/Lima' }),
+      diferenciaMinutos: Math.round(minutesDiff),
+      esFutura: minutesDiff > 0
     });
 
-    if (minutesDiff < 0 &&
-        parsedDate.getDate() === now.getDate() &&
-        parsedDate.getMonth() === now.getMonth() &&
-        parsedDate.getFullYear() === now.getFullYear()) {
-      console.log('⚠️  La hora indicada ya pasó hoy, ajustando al día siguiente...');
-      parsedDate.setDate(parsedDate.getDate() + 1);
-      console.log('✅ Fecha ajustada:', parsedDate.toLocaleString('es-PE'));
+    if (minutesDiff < 0) {
+      const esMismoDia = parsedDate.getDate() === now.getDate() &&
+                        parsedDate.getMonth() === now.getMonth() &&
+                        parsedDate.getFullYear() === now.getFullYear();
+      
+      if (esMismoDia) {
+        console.log('⚠️  La hora indicada ya pasó hoy, ajustando al día siguiente...');
+        parsedDate.setDate(parsedDate.getDate() + 1);
+        console.log('✅ Fecha ajustada:', parsedDate.toLocaleString('es-PE', { timeZone: 'America/Lima' }));
+      } else {
+        console.log('⚠️  La fecha parseada está en el pasado');
+      }
     }
 
     if (!hasTime) {
@@ -100,8 +104,7 @@ function parseNaturalDate(text, referenceDate = new Date()) {
 
     console.log('✅ Fecha parseada final:', {
       textoOriginal: text,
-      fechaParseada: parsedDate.toISOString(),
-      fechaLocal: parsedDate.toLocaleString('es-PE'),
+      fechaLocal: parsedDate.toLocaleString('es-PE', { timeZone: 'America/Lima' }),
       tieneTiempo: hasTime,
       componentes: {
         year: parsedDate.getFullYear(),
@@ -140,7 +143,6 @@ function formatDateForUser(date) {
   const hours12 = hours % 12 || 12;
 
   console.log('🗓️ Formateando fecha:', {
-    fechaOriginal: date.toISOString(),
     dia: dayName,
     hora: `${hours12}:${minutes} ${ampm}`
   });
