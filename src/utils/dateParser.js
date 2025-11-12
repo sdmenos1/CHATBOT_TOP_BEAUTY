@@ -33,12 +33,9 @@ function parseNaturalDate(text, referenceDate = new Date()) {
     const hasDay = result.start.isCertain('day');
     const hasMonth = result.start.isCertain('month');
 
-    // 🚀 CAMBIO PRINCIPAL: usar la fecha base en UTC y convertirla a hora local Lima
-    const fechaUTC = result.start.date();
-    const parsedDate = new Date(
-      fechaUTC.getTime() - fechaUTC.getTimezoneOffset() * 60000
-    );
-    // ✅ Ahora parsedDate es hora local de Lima correctamente (sin doble ajuste)
+    // 🚀 Obtener la fecha parseada por Chrono
+    // Chrono ya devuelve la fecha en hora local basada en el sistema
+    const parsedDate = result.start.date();
 
     const refDay = referenceDate.getDate();
     const refMonth = referenceDate.getMonth();
@@ -64,7 +61,7 @@ function parseNaturalDate(text, referenceDate = new Date()) {
 
     console.log('⏰ Comparando fechas:', {
       fechaActual: now.toLocaleString('es-PE'),
-      fechaParseada: parsedDate.toLocaleString('es-PE', { timeZone: 'America/Lima' }),
+      fechaParseada: parsedDate.toLocaleString('es-PE'),
       diferenciaMinutos: Math.round(minutesDiff)
     });
 
@@ -84,7 +81,7 @@ function parseNaturalDate(text, referenceDate = new Date()) {
     console.log('✅ Fecha parseada final:', {
       textoOriginal: text,
       fechaParseada: parsedDate.toISOString(),
-      fechaLocal: parsedDate.toLocaleString('es-PE', { timeZone: 'America/Lima' }),
+      fechaLocal: parsedDate.toLocaleString('es-PE'),
       tieneTiempo: hasTime,
       componentes: {
         year: parsedDate.getFullYear(),

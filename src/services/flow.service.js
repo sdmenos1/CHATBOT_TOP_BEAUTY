@@ -309,17 +309,16 @@ async function handleDateInput(user, text) {
     return;
   }
 
-  // ✅ Convertimos la fecha UTC que devuelve Chrono a hora local (Lima)
- // La fecha ya viene correctamente ajustada desde parseNaturalDate
-const fechaLocal = parsedDate;
+  // La fecha ya viene en hora local desde parseNaturalDate
+  const fechaLocal = parsedDate;
 
   const now = new Date();
   const timeDiff = fechaLocal.getTime() - now.getTime();
   const minutesDiff = timeDiff / (1000 * 60);
 
-  console.log('🔍 Validando fecha en flow.service (ajustada a hora local - Lima):', {
-    fechaActual: now.toLocaleString('es-PE', { timeZone: 'America/Lima' }),
-    fechaParseada: fechaLocal.toLocaleString('es-PE', { timeZone: 'America/Lima' }),
+  console.log('🔍 Validando fecha en flow.service:', {
+    fechaActual: now.toLocaleString('es-PE'),
+    fechaParseada: fechaLocal.toLocaleString('es-PE'),
     diferenciaMinutos: Math.round(minutesDiff),
     esFutura: minutesDiff > 0,
   });
@@ -345,13 +344,11 @@ const fechaLocal = parsedDate;
       hour: '2-digit',
       minute: '2-digit',
       hour12: true,
-      timeZone: 'America/Lima',
     });
     const fechaFormateada = fechaLocal.toLocaleDateString('es-PE', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
-      timeZone: 'America/Lima',
     });
 
     const result = await addRowToSheet({
