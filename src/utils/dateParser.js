@@ -43,6 +43,14 @@ function parseNaturalDate(text, referenceDate = new Date()) {
     const second = 0;
     
     let parsedDate = new Date(year, month, day, hour, minute, second);
+
+    // Normalizar a zona horaria de Lima (UTC-5) independientemente del servidor
+    const serverOffsetMin = new Date().getTimezoneOffset(); // minutos respecto a UTC
+    const limaOffsetMin = 300; // UTC-5 -> 300 minutos
+    const deltaMin = limaOffsetMin - serverOffsetMin;
+    if (deltaMin !== 0) {
+      parsedDate = new Date(parsedDate.getTime() + deltaMin * 60000);
+    }
     
     const refDay = referenceDate.getDate();
     const refMonth = referenceDate.getMonth();
@@ -71,9 +79,15 @@ function parseNaturalDate(text, referenceDate = new Date()) {
       fechaParseada: parsedDate.toLocaleString('es-PE'),
       diferenciaMinutos: Math.round(minutesDiff)
     });
-    // No ajustar automáticamente al día siguiente si la hora ya pasó.
-    // Se mantiene el día interpretado (incluyendo "hoy") y la validación de futuro
-    // se realiza aguas arriba en los flujos correspondientes.
+    // Si la hora ya pasó hoy, ajustamos al día siguiente para evitar rechazar
+    if (minutesDiff < 0 &&
+        parsedDate.getDate() === now.getDate() &&
+        parsedDate.getMonth() === now.getMonth() &&
+        parsedDate.getFullYear() === now.getFullYear()) {
+      console.log('⚠️  La hora indicada ya pasó hoy, ajustando al día siguiente...');
+      parsedDate.setDate(parsedDate.getDate() + 1);
+      console.log('✅ Fecha ajustada:', parsedDate.toLocaleString('es-PE'));
+    }
     
     if (!hasTime) {
       console.log('⚠️  No se detectó hora en el texto, usando hora por defecto 9:00 AM');

@@ -309,12 +309,17 @@ async function handleDateInput(user, text) {
     return;
   }
 
-  const now = new Date();
-  const timeDiff = parsedDate.getTime() - now.getTime();
+  // Normalizar comparación a zona horaria de Lima para evitar desfaces por TZ del servidor
+  const serverOffsetMin = new Date().getTimezoneOffset();
+  const limaOffsetMin = 300; // UTC-5
+  const deltaMin = limaOffsetMin - serverOffsetMin;
+  const nowServer = new Date();
+  const nowLima = new Date(nowServer.getTime() + deltaMin * 60000);
+  const timeDiff = parsedDate.getTime() - nowLima.getTime();
   const minutesDiff = timeDiff / (1000 * 60);
   
   console.log('🔍 Validando fecha en flow.service:', {
-    fechaActual: now.toLocaleString('es-PE'),
+    fechaActual: nowLima.toLocaleString('es-PE'),
     fechaParseada: parsedDate.toLocaleString('es-PE'),
     diferenciaMinutos: Math.round(minutesDiff),
     esFutura: minutesDiff > 0
