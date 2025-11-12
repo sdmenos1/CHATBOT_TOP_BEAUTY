@@ -178,12 +178,9 @@ async function handleLocationSelection(user, text) {
 
 ¿Qué servicio se realizará la clienta?
 
-1️⃣ Botox
-2️⃣ Bioplastia reconstructora
-3️⃣ Bioplastia organica
-4️⃣ Bioplastia Top Láser
-5️⃣ Semipermanente
-6️⃣ Dual
+1️⃣ Alisado
+2️⃣ Laceado
+3️⃣ Color
 
 Por favor, responde con el número o el nombre del servicio.`;
 
@@ -196,7 +193,7 @@ async function handleServiceSelection(user, text) {
   if (!result) {
     await whatsappService.sendMessage(
       user.phoneNumber,
-      "Por favor, selecciona una opción válida:\n\n1️⃣ Botox\n2️⃣ Bioplastia reconstructora\n3️⃣ Bioplastia organica\n4️⃣ Bioplastia Top Láser\n5️⃣ Semipermanente\n6️⃣ Dual"
+      "Por favor, selecciona una opción válida:\n\n1️⃣ Alisado\n2️⃣ Laceado\n3️⃣ Color"
     );
     return;
   }
