@@ -126,19 +126,19 @@ async function handleInitialState(user) {
 
 ¿En qué local deseas registrar la cita de la clienta?
 
-A) LOS OLIVOS
-B) TRUJILLO
-C) AREQUIPO
-D) CHIMBOTE
-E) PUCALLPA
-F) MEDELLIN
-G) CHICO
-H) CHAPINERO
-I) LOS LEONES
-J) PROVIDENCIA
-K) LINCE
-L) LUXURY
-M) MOR
+a) Los Olivos
+b) Trujillo
+c) Arequipa
+d) Chimbote
+e) Pucallpa
+f) Medellín
+g) Chico
+h) Chapinero
+i) Los Leones
+j) Providencia
+k) Lince
+l) Luxury
+m) Mor
 
 Por favor, responde con la letra o el nombre del local.`;
 
@@ -178,9 +178,12 @@ async function handleLocationSelection(user, text) {
 
 ¿Qué servicio se realizará la clienta?
 
-1️⃣ Alisado
-2️⃣ Laceado
-3️⃣ Color
+1️⃣ Botox
+2️⃣ Bioplastia reconstructora
+3️⃣ Bioplastia organica
+4️⃣ Bioplastia Top Láser
+5️⃣ Semipermanente
+6️⃣ Dual
 
 Por favor, responde con el número o el nombre del servicio.`;
 
@@ -193,7 +196,7 @@ async function handleServiceSelection(user, text) {
   if (!result) {
     await whatsappService.sendMessage(
       user.phoneNumber,
-      "Por favor, selecciona una opción válida:\n\n1️⃣ Alisado\n2️⃣ Laceado\n3️⃣ Color"
+      "Por favor, selecciona una opción válida:\n\n1️⃣ Botox\n2️⃣ Bioplastia reconstructora\n3️⃣ Bioplastia organica\n4️⃣ Bioplastia Top Láser\n5️⃣ Semipermanente\n6️⃣ Dual"
     );
     return;
   }
@@ -309,7 +312,19 @@ async function handleDateInput(user, text) {
     return;
   }
 
-  if (parsedDate < new Date()) {
+  const now = new Date();
+  const timeDiff = parsedDate.getTime() - now.getTime();
+  const minutesDiff = timeDiff / (1000 * 60);
+  
+  console.log('🔍 Validando fecha en flow.service:', {
+    fechaActual: now.toLocaleString('es-PE'),
+    fechaParseada: parsedDate.toLocaleString('es-PE'),
+    diferenciaMinutos: Math.round(minutesDiff),
+    esFutura: minutesDiff > 0
+  });
+  
+  if (minutesDiff < 0) {
+    console.log('❌ Fecha rechazada - está en el pasado');
     await whatsappService.sendMessage(
       user.phoneNumber,
       "La fecha debe ser en el futuro. Por favor, ingresa una fecha válida."
@@ -324,22 +339,25 @@ async function handleDateInput(user, text) {
 
   // REFACTOR NOTE: Save to Google Sheets immediately after date confirmation
   // No Google Calendar integration anymore
+  
+  const horaFormateada = user.parsedAppointmentDate
+    ? user.parsedAppointmentDate.toLocaleTimeString("es-PE", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
+    : "";
+  const fechaFormateada = user.parsedAppointmentDate
+    ? user.parsedAppointmentDate.toLocaleDateString("es-PE", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
+    : "";
+  
+  console.log('💾 Guardando cita en Google Sheets...');
+  
   try {
-    const horaFormateada = user.parsedAppointmentDate
-      ? user.parsedAppointmentDate.toLocaleTimeString("es-PE", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        })
-      : "";
-    const fechaFormateada = user.parsedAppointmentDate
-      ? user.parsedAppointmentDate.toLocaleDateString("es-PE", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        })
-      : "";
-    
     const result = await addRowToSheet({
       local: user.selectedLocation,
       nombre: user.name,
@@ -354,6 +372,7 @@ async function handleDateInput(user, text) {
     if (!result.success) {
       console.error("❌ Fallo al guardar cita en Google Sheets:", result.error);
       user.state = "COMPLETED";
+      await saveUser(user);
       
       // REFACTOR NOTE: Changed to advisor-facing language
       await whatsappService.sendMessage(
@@ -362,11 +381,25 @@ async function handleDateInput(user, text) {
       );
       return;
     }
+    
+    console.log('✅ Cita guardada exitosamente en Google Sheets');
+    
   } catch (error) {
-    console.error("❌ Error al guardar cita en Google Sheets:", error);
+    console.error("❌ Error crítico al guardar cita en Google Sheets:", error);
+    user.state = "COMPLETED";
+    await saveUser(user);
+    
+    await whatsappService.sendMessage(
+      user.phoneNumber,
+      `⚠️ Hubo un error al guardar en Google Sheets.\n\n📋 *Datos de la cita:*\n\n📍 Local: ${user.selectedLocation}\n👤 Nombre: ${user.name}\n📞 Teléfono: ${user.collectedPhone}\n💅 Servicio: ${user.selectedService}\n📅 Fecha y hora: ${formattedDate}\n\n⚠️ Por favor, registra manualmente en la hoja de cálculo.\n\nPara registrar otra cita, envía "Hola".`
+    );
+    return;
   }
 
   user.state = "COMPLETED";
+  await saveUser(user);
+  
+  console.log('✅ Estado del usuario actualizado a COMPLETED');
 
   // REFACTOR NOTE: Changed to advisor-facing language - removed Calendar mention
   const confirmationMessage = `✅ ¡Cita registrada exitosamente!
@@ -384,6 +417,7 @@ La cita ha sido guardada en Google Sheets.
 Para registrar otra cita, envía "Hola".`;
 
   await whatsappService.sendMessage(user.phoneNumber, confirmationMessage);
+  console.log('✅ Mensaje de confirmación enviado');
 }
 
 async function handleCompletedState(user, text) {

@@ -62,13 +62,18 @@ function parseNaturalDate(text, referenceDate = new Date()) {
       }
     }
     
-    if (parsedDate <= referenceDate) {
-      console.log('⚠️  La fecha parseada no es futura, ajustando...');
-      if (parsedDate.getDate() === referenceDate.getDate() && 
-          parsedDate.getMonth() === referenceDate.getMonth()) {
-        parsedDate.setDate(parsedDate.getDate() + 1);
-      }
-    }
+    const now = new Date();
+    const timeDiff = parsedDate.getTime() - now.getTime();
+    const minutesDiff = timeDiff / (1000 * 60);
+    
+    console.log('⏰ Comparando fechas:', {
+      fechaActual: now.toLocaleString('es-PE'),
+      fechaParseada: parsedDate.toLocaleString('es-PE'),
+      diferenciaMinutos: Math.round(minutesDiff)
+    });
+    // No ajustar automáticamente al día siguiente si la hora ya pasó.
+    // Se mantiene el día interpretado (incluyendo "hoy") y la validación de futuro
+    // se realiza aguas arriba en los flujos correspondientes.
     
     if (!hasTime) {
       console.log('⚠️  No se detectó hora en el texto, usando hora por defecto 9:00 AM');
