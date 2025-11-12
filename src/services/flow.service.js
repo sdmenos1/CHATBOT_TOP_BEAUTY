@@ -14,12 +14,9 @@ const {
   isValidName,
   normalizeLocationSelection,
 } = require("../utils/messageParser");
+const { DateTime } = require("luxon");
 
-// REFACTOR NOTE: Removed all Google Calendar integration
-// - Removed googleAuthService import
-// - Removed createCalendarDateTime import
-// - Removed WAITING_CALENDAR state handling
-// - Flow now goes: Date confirmation → Save to Sheets → Completed
+const LIMA_TIMEZONE = 'America/Lima';
 
 function isMongoConnected() {
   return mongoose.connection.readyState === 1;
@@ -120,7 +117,6 @@ async function processMessage(from, text, messageId) {
   }
 }
 
-// REFACTOR NOTE: Changed message from customer-facing to advisor-facing
 async function handleInitialState(user) {
   const welcomeMessage = `👋 ¡Hola! Bienvenida al sistema de registro de citas.
 
@@ -173,7 +169,6 @@ async function handleLocationSelection(user, text) {
   user.selectedLocation = location;
   user.state = "WAITING_SERVICE";
 
-  // REFACTOR NOTE: Changed to advisor-facing language
   const serviceMessage = `Perfecto, local seleccionado: *${location}*.
 
 ¿Qué servicio se realizará la clienta?
@@ -201,7 +196,6 @@ async function handleServiceSelection(user, text) {
   user.selectedService = result.service;
   user.state = "WAITING_NAME";
 
-  // REFACTOR NOTE: Changed to advisor-facing language
   await whatsappService.sendMessage(
     user.phoneNumber,
     `Servicio seleccionado: *${result.service}*\n\nPor favor, ingresa el *nombre completo de la clienta*.`
@@ -220,7 +214,6 @@ async function handleNameInput(user, text) {
   user.name = text.trim();
   user.state = "WAITING_PHONE";
 
-  // REFACTOR NOTE: Changed to advisor-facing language
   await whatsappService.sendMessage(
     user.phoneNumber,
     `Nombre registrado: ${user.name}\n\nAhora ingresa el *número de teléfono de la clienta*.`
@@ -239,7 +232,6 @@ async function handlePhoneInput(user, text) {
   user.collectedPhone = text.trim();
   user.state = "WAITING_CONFIRMATION";
 
-  // REFACTOR NOTE: Changed to advisor-facing language
   const confirmationMessage = `Perfecto. Verifica los datos de la clienta:
 
 📋 *Resumen de la información:*
@@ -289,15 +281,12 @@ async function handleConfirmation(user, text) {
   }
 
   user.state = "WAITING_DATE";
-  // REFACTOR NOTE: Changed to advisor-facing language
   await whatsappService.sendMessage(
     user.phoneNumber,
     '¡Perfecto! 📅\n\nAhora ingresa la *fecha y hora de la cita*.\n\nEjemplos:\n- "15 de enero a las 3:00 PM"\n- "mañana a las 10:00 AM"\n- "sábado a las 2:00 PM"'
   );
 }
 
-// REFACTOR NOTE: Completely refactored - no longer asks about Google Calendar
-// Now saves directly to Google Sheets after date confirmation
 async function handleDateInput(user, text) {
   const parsedDate = parseNaturalDate(text);
 
@@ -309,21 +298,18 @@ async function handleDateInput(user, text) {
     return;
   }
 
-  // La fecha ya viene en hora local desde parseNaturalDate
-  const fechaLocal = parsedDate;
+  const nowLima = DateTime.now().setZone(LIMA_TIMEZONE);
+  const parsedLima = DateTime.fromJSDate(parsedDate).setZone(LIMA_TIMEZONE);
+  const diffMinutes = parsedLima.diff(nowLima, 'minutes').minutes;
 
-  const now = new Date();
-  const timeDiff = fechaLocal.getTime() - now.getTime();
-  const minutesDiff = timeDiff / (1000 * 60);
-
-  console.log('🔍 Validando fecha en flow.service:', {
-    fechaActual: now.toLocaleString('es-PE'),
-    fechaParseada: fechaLocal.toLocaleString('es-PE'),
-    diferenciaMinutos: Math.round(minutesDiff),
-    esFutura: minutesDiff > 0,
+  console.log('🔍 Validando fecha en flow.service (Lima):', {
+    fechaActual: nowLima.toFormat('yyyy-MM-dd HH:mm:ss'),
+    fechaParseada: parsedLima.toFormat('yyyy-MM-dd HH:mm:ss'),
+    diferenciaMinutos: Math.round(diffMinutes),
+    esFutura: diffMinutes > 0,
   });
 
-  if (minutesDiff < 0) {
+  if (diffMinutes < 0) {
     console.log('❌ Fecha rechazada - está en el pasado');
     await whatsappService.sendMessage(
       user.phoneNumber,
@@ -333,23 +319,16 @@ async function handleDateInput(user, text) {
   }
 
   user.appointmentDate = text.trim();
-  user.parsedAppointmentDate = fechaLocal;
+  user.parsedAppointmentDate = parsedDate;
 
-  const formattedDate = formatDateForUser(fechaLocal);
+  const formattedDate = formatDateForUser(parsedDate);
 
   console.log('💾 Guardando cita en Google Sheets...');
 
   try {
-    const horaFormateada = fechaLocal.toLocaleTimeString('es-PE', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    });
-    const fechaFormateada = fechaLocal.toLocaleDateString('es-PE', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
+    const parsedLimaDateTime = DateTime.fromJSDate(parsedDate).setZone(LIMA_TIMEZONE);
+    const horaFormateada = parsedLimaDateTime.toFormat('hh:mm a');
+    const fechaFormateada = parsedLimaDateTime.toFormat('dd/MM/yyyy');
 
     const result = await addRowToSheet({
       local: user.selectedLocation,
@@ -419,7 +398,6 @@ async function handleCompletedState(user, text) {
     resetUserConversation(user);
     await handleInitialState(user);
   } else {
-    // REFACTOR NOTE: Changed to advisor-facing language
     await whatsappService.sendMessage(
       user.phoneNumber,
       'La cita ya fue registrada. Para registrar otra cita, envía "Hola".'
