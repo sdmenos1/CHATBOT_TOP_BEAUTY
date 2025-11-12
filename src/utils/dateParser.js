@@ -33,9 +33,29 @@ function parseNaturalDate(text, referenceDate = new Date()) {
     const hasDay = result.start.isCertain('day');
     const hasMonth = result.start.isCertain('month');
 
-    // 🚀 Obtener la fecha parseada por Chrono
-    // Chrono ya devuelve la fecha en hora local basada en el sistema
-    const parsedDate = result.start.date();
+    // 🚀 SOLUCIÓN: Crear la fecha usando los componentes en hora local de Lima
+    // Chrono parsea los componentes correctamente, pero result.start.date() devuelve UTC
+    // Por eso creamos manualmente la fecha con los componentes
+    const parsedDate = new Date(
+      result.start.get('year'),
+      result.start.get('month') - 1, // Month es 0-indexed en JavaScript
+      result.start.get('day'),
+      result.start.get('hour') || 9, // Default 9 AM si no hay hora
+      result.start.get('minute') || 0,
+      0
+    );
+
+    console.log('✅ Fecha creada manualmente en hora local:', {
+      componentes: {
+        year: result.start.get('year'),
+        month: result.start.get('month'),
+        day: result.start.get('day'),
+        hour: result.start.get('hour'),
+        minute: result.start.get('minute')
+      },
+      fechaCreada: parsedDate.toLocaleString('es-PE'),
+      fechaISO: parsedDate.toISOString()
+    });
 
     const refDay = referenceDate.getDate();
     const refMonth = referenceDate.getMonth();
