@@ -309,17 +309,19 @@ async function handleDateInput(user, text) {
     return;
   }
 
-  // 🔧 Ajuste de zona horaria manual a Lima (-5)
-  const offsetMs = 5 * 60 * 60 * 1000;
-  const localDate = new Date(parsedDate.getTime() - offsetMs);
+  // ✅ Convertimos la fecha UTC que devuelve Chrono a hora local (Lima)
+  const fechaUTC = parsedDate;
+  const fechaLocal = new Date(
+    fechaUTC.getTime() - fechaUTC.getTimezoneOffset() * 60000
+  );
 
   const now = new Date();
-  const timeDiff = localDate.getTime() - now.getTime();
+  const timeDiff = fechaLocal.getTime() - now.getTime();
   const minutesDiff = timeDiff / (1000 * 60);
 
   console.log('🔍 Validando fecha en flow.service (ajustada a hora local - Lima):', {
     fechaActual: now.toLocaleString('es-PE', { timeZone: 'America/Lima' }),
-    fechaParseada: localDate.toLocaleString('es-PE', { timeZone: 'America/Lima' }),
+    fechaParseada: fechaLocal.toLocaleString('es-PE', { timeZone: 'America/Lima' }),
     diferenciaMinutos: Math.round(minutesDiff),
     esFutura: minutesDiff > 0,
   });
@@ -334,20 +336,20 @@ async function handleDateInput(user, text) {
   }
 
   user.appointmentDate = text.trim();
-  user.parsedAppointmentDate = localDate;
+  user.parsedAppointmentDate = fechaLocal;
 
-  const formattedDate = formatDateForUser(localDate);
+  const formattedDate = formatDateForUser(fechaLocal);
 
   console.log('💾 Guardando cita en Google Sheets...');
 
   try {
-    const horaFormateada = localDate.toLocaleTimeString('es-PE', {
+    const horaFormateada = fechaLocal.toLocaleTimeString('es-PE', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true,
       timeZone: 'America/Lima',
     });
-    const fechaFormateada = localDate.toLocaleDateString('es-PE', {
+    const fechaFormateada = fechaLocal.toLocaleDateString('es-PE', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
