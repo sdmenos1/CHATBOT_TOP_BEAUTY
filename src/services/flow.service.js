@@ -339,6 +339,7 @@ async function handleDateInput(user, text) {
       fecha: fechaFormateada,
       hora: horaFormateada,
       estado: 'Confirmado',
+      telefonoAsesor: user.phoneNumber,
     });
 
     if (!result.success) {
