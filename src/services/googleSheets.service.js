@@ -150,6 +150,8 @@ async function addRowToSheet({
   fecha,
   hora,
   estado,
+  nombreAsesora,
+  apellidoAsesora,
   telefonoAsesor,
 }) {
   try {
@@ -226,8 +228,8 @@ async function addRowToSheet({
 
     const nextRow = await findNextEmptyRow(spreadsheetId, sheetName);
 
-    const values = [[nombre, telefono, servicio, precio, fecha, hora, estado, telefonoAsesor]];
-    const range = `${sheetName}!A${nextRow}:H${nextRow}`;
+    const values = [[nombre, telefono, servicio, precio, fecha, hora, estado, nombreAsesora, apellidoAsesora, telefonoAsesor]];
+    const range = `${sheetName}!A${nextRow}:J${nextRow}`;
 
     const response = await sheetsClient.spreadsheets.values.update({
       spreadsheetId,
