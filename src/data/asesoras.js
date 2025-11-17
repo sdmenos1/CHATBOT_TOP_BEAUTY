@@ -8,10 +8,10 @@ const asesoras = [
   { nombre: "CLAIRYS", apellido: "CASTILLO", telefono: "51913365819" },
 
   // Colombia
-  { nombre: "ELIANA", apellido: "MERCADO", telefono: "573113490422" },
+  { nombre: "ELIANA", apellido: "MERCADO", telefono: "573134950422" },
   { nombre: "MARIA", apellido: "GARCIA", telefono: "573114594798" },
   { nombre: "YESICA", apellido: "ROJAS", telefono: "573134544701" },
-  { nombre: "MERY", apellido: "PINEDA", telefono: "573115599560" },
+  { nombre: "MERY", apellido: "PINEDA", telefono: "573115599569" },
   { nombre: "ORIANA", apellido: "GÓMEZ", telefono: "3136007914" },
   { nombre: "LARA", apellido: "TORREALBA", telefono: "573136007942" },
   { nombre: "VALERIA", apellido: "HURTADO", telefono: "573134485095" },
@@ -21,7 +21,7 @@ const asesoras = [
   { nombre: "ROUS", apellido: "COLINA", telefono: "56956935833" },
   { nombre: "BARBARA", apellido: "TORREALBA", telefono: "56940123023" },
   { nombre: "MIA", apellido: "ESCALONA", telefono: "56923734939" },
-  { nombre: "ZARA", apellido: "FERNANDEZ", telefono: "56 9 79801173" },
+  { nombre: "ZARA", apellido: "FERNANDEZ", telefono: "56979801173" },
   { nombre: "BETANIA", apellido: "MALDONADO", telefono: "56940617409" },
   { nombre: "ANDREINA", apellido: "MENDOZA", telefono: "56973950206" },
   { nombre: "MELISSA", apellido: "MENDOZA", telefono: "51973706366" },
