@@ -175,9 +175,12 @@ async function handleLocationSelection(user, text) {
 ¿Qué servicio se realizará la clienta?
 
 1️⃣ Alisado
-2️⃣ Laceado
-3️⃣ Color
-
+2️⃣ Bioplastia
+3️⃣ Botox
+4️⃣ Color
+5️⃣ Corte
+6️⃣ Laceado
+  
 Por favor, responde con el número o el nombre del servicio.`;
 
   await whatsappService.sendMessage(user.phoneNumber, serviceMessage);
@@ -189,7 +192,7 @@ async function handleServiceSelection(user, text) {
   if (!result) {
     await whatsappService.sendMessage(
       user.phoneNumber,
-      "Por favor, selecciona una opción válida:\n\n1️⃣ Alisado\n2️⃣ Laceado\n3️⃣ Color"
+      "Por favor, selecciona una opción válida:\n\n1️⃣ Alisado\n2️⃣ Bioplastia\n3️⃣ Botox\n4️⃣ Color\n5️⃣ Corte\n6️⃣ Laceado"
     );
     return;
   }

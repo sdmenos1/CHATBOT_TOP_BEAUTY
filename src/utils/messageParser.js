@@ -71,11 +71,20 @@ function normalizeServiceSelection(text) {
   if (normalized === "1" || normalized.includes("alisado")) {
     return { service: "Alisado" };
   }
-  if (normalized === "2" || normalized.includes("laceado")) {
-    return { service: "Laceado" };
+  if (normalized === "2" || normalized.includes("bioplastia") || normalized.includes("bio plastia")) {
+    return { service: "Bioplastia" };
   }
-  if (normalized === "3" || normalized.includes("color")) {
+  if (normalized === "3" || normalized.includes("botox") || normalized.includes("bótox")) {
+    return { service: "Botox" };
+  }
+  if (normalized === "4" || normalized.includes("color")) {
     return { service: "Color" };
+  }
+  if (normalized === "5" || normalized.includes("corte") || normalized.includes("cortar")) {
+    return { service: "Corte" };
+  }
+  if (normalized === "6" || normalized.includes("laceado")) {
+    return { service: "Laceado" };
   }
 
   return null;
