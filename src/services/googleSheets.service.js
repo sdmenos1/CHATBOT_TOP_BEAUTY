@@ -167,51 +167,66 @@ async function addRowToSheet({
     }
 
     let spreadsheetId;
+    let baseEnvVarName;
     switch (local) {
       case "Chimbote":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_CHIMBOTE;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_CHIMBOTE";
         break;
       case "Trujillo":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_TRUJILLO;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_TRUJILLO";
         break;
       case "Olivos": // backward compatibility
       case "Los Olivos":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_OLIVOS;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_OLIVOS";
         break;
       case "Arequipa":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_AREQUIPA;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_AREQUIPA";
         break;
       case "Lince":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_LINCE;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_LINCE";
         break;
       case "Pucallpa":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_PUCALLPA;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_PUCALLPA";
         break;
       case "Luxury":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_LUXURY;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_LUXURY";
         break;
       case "Medellin": // legacy without accent
       case "Medellín":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_MEDELLIN;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_MEDELLIN";
         break;
       case "Chapineros": // legacy plural
       case "Chapinero":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_CHAPINEROS;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_CHAPINEROS";
         break;
       case "Los Leones":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_LOS_LEONES;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_LOS_LEONES";
         break;
       case "Providencia":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_PROVIDENCIA;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_PROVIDENCIA";
         break;
       case "Chico":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_CHICO;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_CHICO";
         break;
       case "Mor":
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_MOR;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_MOR";
         break;
       default:
         spreadsheetId = process.env.GOOGLE_SHEETS_ID;
+        baseEnvVarName = "GOOGLE_SHEETS_ID";
     }
 
     if (!spreadsheetId) {
@@ -224,6 +239,24 @@ async function addRowToSheet({
     console.log(`📄 Intentando agregar cita a Google Sheets del local: ${local}...`);
 
     const sheetName = fecha.replace(/\//g, "-");
+    try {
+      const [dd, mm, yyyy] = fecha.split("/");
+      const month = parseInt(mm, 10);
+      const year = parseInt(yyyy, 10);
+      if (baseEnvVarName && year === 2025 && month === 12) {
+        const overrideId = process.env[`${baseEnvVarName}_DIC_2025`];
+        if (overrideId) {
+          spreadsheetId = overrideId;
+          console.log("🔁 Usando hoja específica para Diciembre 2025");
+        }
+      } else if (baseEnvVarName && year === 2026 && month === 1) {
+        const overrideId = process.env[`${baseEnvVarName}_ENE_2026`];
+        if (overrideId) {
+          spreadsheetId = overrideId;
+          console.log("🔁 Usando hoja específica para Enero 2026");
+        }
+      }
+    } catch (e) {}
     console.log(`📅 Guardando en la hoja: ${sheetName}`);
 
     const nextRow = await findNextEmptyRow(spreadsheetId, sheetName);
