@@ -54,7 +54,7 @@ const userSchema = new mongoose.Schema(
     },
     selectedService: {
       type: String,
-      enum: ["Alisado", "Laceado", "Color", null],
+      enum: ["Alisado", "Bioplastia", "Botox", "Color", "Corte", "Laceado", null],
       default: null,
     },
     servicePrice: {
