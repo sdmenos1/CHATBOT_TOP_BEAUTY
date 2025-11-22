@@ -393,8 +393,12 @@ La cita ha sido guardada en Google Sheets.
 
 Para registrar otra cita, envía "Hola".`;
 
-  await whatsappService.sendMessage(user.phoneNumber, confirmationMessage);
-  console.log('✅ Mensaje de confirmación enviado');
+  try {
+    await whatsappService.sendMessage(user.phoneNumber, confirmationMessage);
+    console.log('✅ Mensaje de confirmación enviado');
+  } catch (err) {
+    console.error('❌ Error al enviar mensaje de confirmación:', err.response?.data || err.message);
+  }
 }
 
 async function handleCompletedState(user, text) {

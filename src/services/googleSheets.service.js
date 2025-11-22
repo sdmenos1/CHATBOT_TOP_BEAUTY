@@ -99,21 +99,32 @@ async function getSheetId(spreadsheetId, sheetName) {
 
 async function copyDataValidation(spreadsheetId, sheetId, sourceRow, targetRow) {
   try {
-    const response = await sheetsClient.spreadsheets.get({
+    const response = await sheetsClient.spreadsheets.getByDataFilter({
       spreadsheetId,
-      ranges: [],
-      includeGridData: true,
+      resource: {
+        includeGridData: true,
+        dataFilters: [
+          {
+            gridRange: {
+              sheetId: sheetId,
+              startRowIndex: sourceRow - 1,
+              endRowIndex: sourceRow,
+              startColumnIndex: 1,
+              endColumnIndex: 21,
+            },
+          },
+        ],
+      },
     });
 
-    const sheet = response.data.sheets.find(s => s.properties.sheetId === sheetId);
-    
-    if (!sheet || !sheet.data || !sheet.data[0] || !sheet.data[0].rowData) {
+    const sheets = response.data.sheets || [];
+    if (!sheets.length || !sheets[0].data || !sheets[0].data.length) {
       console.log('⚠️  No se encontró data validation para copiar');
       return false;
     }
 
-    const rowData = sheet.data[0].rowData;
-    const sourceRowData = rowData[sourceRow - 1];
+    const rowData = sheets[0].data[0].rowData || [];
+    const sourceRowData = rowData[0];
     
     if (!sourceRowData || !sourceRowData.values) {
       console.log('⚠️  No hay datos en la fila fuente');

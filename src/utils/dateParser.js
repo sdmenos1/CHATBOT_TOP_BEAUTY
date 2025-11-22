@@ -9,12 +9,18 @@ function parseNaturalDate(text, referenceDate = null) {
     ? DateTime.fromJSDate(referenceDate).setZone(LIMA_TIMEZONE)
     : DateTime.now().setZone(LIMA_TIMEZONE);
   
-  console.log('🔍 Parseando texto:', text);
+  const cleanedText = String(text)
+    .replace(/\u00A0/g, ' ')
+    .replace(/[\t\n\r]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  console.log('🔍 Parseando texto:', cleanedText);
   console.log('📆 Fecha de referencia (Lima):', limaTime.toFormat('yyyy-MM-dd HH:mm:ss'));
 
   const referenceDateJS = limaTime.toJSDate();
   
-  const results = chronoEs.casual.parse(text, referenceDateJS, {
+  let results = chronoEs.casual.parse(cleanedText, referenceDateJS, {
     forwardDate: true
   });
 
@@ -66,7 +72,7 @@ function parseNaturalDate(text, referenceDate = null) {
 
     if (hasDay && hasMonth) {
       console.log('✅ Usuario especificó día y mes explícitamente');
-      const dayMatch = text.match(/(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i);
+      const dayMatch = cleanedText.match(/(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/i);
       if (dayMatch) {
         const dayFromText = parseInt(dayMatch[1]);
         console.log('🔄 Detectado día específico en texto:', dayFromText);
@@ -117,6 +123,54 @@ function parseNaturalDate(text, referenceDate = null) {
     });
 
     return parsedDateTime.toJSDate();
+  }
+
+  const monthsMap = {
+    enero: 1, febrero: 2, marzo: 3, abril: 4, mayo: 5, junio: 6,
+    julio: 7, agosto: 8, septiembre: 9, setiembre: 9, octubre: 10, noviembre: 11, diciembre: 12
+  };
+
+  const weekdaysMap = {
+    lunes: 1, martes: 2, miércoles: 3, miercoles: 3, jueves: 4, viernes: 5, sábado: 6, sabado: 6, domingo: 7
+  };
+
+  const monthPattern = "enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre";
+  const timePattern = "(\\d{1,2})(?::(\\d{2}))?\\s*(am|pm|AM|PM)?";
+
+  let m;
+  m = cleanedText.match(new RegExp(`^(\\d{1,2})\\s+de\\s+(${monthPattern})(?:\\s+de\\s+(\\d{4}))?\\s+a\\s+las\\s+${timePattern}$`, 'i'));
+  if (m) {
+    const day = parseInt(m[1], 10);
+    const month = monthsMap[m[2].toLowerCase()];
+    const year = m[3] ? parseInt(m[3], 10) : limaTime.year;
+    let hour = parseInt(m[4] || '9', 10);
+    let minute = parseInt(m[5] || '0', 10);
+    const ampm = (m[6] || '').toLowerCase();
+    if (ampm === 'pm' && hour < 12) hour += 12;
+    if (ampm === 'am' && hour === 12) hour = 0;
+    let dt = DateTime.fromObject({ year, month, day, hour, minute, second: 0 }, { zone: LIMA_TIMEZONE });
+    if (dt < limaTime) {
+      dt = dt.plus({ year: 1 });
+    }
+    console.log('✅ Fecha parseada por fallback (día/mes/hora):', dt.toFormat('yyyy-MM-dd HH:mm:ss'));
+    return dt.toJSDate();
+  }
+
+  m = cleanedText.match(new RegExp(`^(lunes|martes|miércoles|miercoles|jueves|viernes|sábado|sabado|domingo)\\s+a\\s+las\\s+${timePattern}$`, 'i'));
+  if (m) {
+    const targetWeekday = weekdaysMap[m[1].toLowerCase()];
+    let hour = parseInt(m[2] || '9', 10);
+    let minute = parseInt(m[3] || '0', 10);
+    const ampm = (m[4] || '').toLowerCase();
+    if (ampm === 'pm' && hour < 12) hour += 12;
+    if (ampm === 'am' && hour === 12) hour = 0;
+    let dt = limaTime;
+    const currentWeekday = dt.weekday;
+    let addDays = (targetWeekday - currentWeekday + 7) % 7;
+    if (addDays === 0 && dt.set({ hour, minute }) <= dt) addDays = 7;
+    dt = dt.plus({ days: addDays }).set({ hour, minute, second: 0, millisecond: 0 });
+    console.log('✅ Fecha parseada por fallback (día de semana/hora):', dt.toFormat('yyyy-MM-dd HH:mm:ss'));
+    return dt.toJSDate();
   }
 
   console.log('❌ No se pudo parsear la fecha');
