@@ -43,7 +43,7 @@ function initializeSheetsClient() {
 async function findNextEmptyRow(spreadsheetId, sheetName) {
   try {
     // Buscar en la columna B (REDES) en lugar de A, ya que A tiene números pre-rellenados
-    const range = `${sheetName}!B:B`;
+    const range = `${sheetName}!B12:B`; // Empezar desde la fila 12
     const response = await sheetsClient.spreadsheets.values.get({
       spreadsheetId,
       range,
@@ -51,20 +51,20 @@ async function findNextEmptyRow(spreadsheetId, sheetName) {
 
     const rows = response.data.values || [];
     
-    // Buscar la primera fila vacía después del encabezado
-    let nextRow = 12; // Empezar desde la fila 12 (primera fila de datos)
+    // Buscar la primera fila vacía
+    let nextRow = 12; // Fila inicial
     
     for (let i = 0; i < rows.length; i++) {
       // Si la celda está vacía o es undefined, esa es nuestra fila
       if (!rows[i] || rows[i].length === 0 || !rows[i][0]) {
-        nextRow = i + 1;
+        nextRow = 12 + i; // Sumar el offset de la fila 12
         break;
       }
     }
     
     // Si todas las filas tienen datos, usar la siguiente después de la última
-    if (nextRow === 12 && rows.length >= 11) {
-      nextRow = rows.length + 1;
+    if (nextRow === 12 && rows.length > 0) {
+      nextRow = 12 + rows.length;
     }
     
     console.log(`📍 Siguiente fila vacía en ${sheetName}: ${nextRow}`);
