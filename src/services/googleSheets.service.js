@@ -238,22 +238,43 @@ async function addRowToSheet({
 
     console.log(`📄 Intentando agregar cita a Google Sheets del local: ${local}...`);
 
-    // Determinar qué Google Sheet usar según el mes/año y convertir fecha a formato DD-MM-YYYY
-    let sheetName = fecha.replace(/\//g, "-"); // Por defecto: DD-MM-YYYY
+    // Determinar qué Google Sheet usar según el mes y usar el día como nombre de hoja
+    let sheetName;
     
     try {
       const [dd, mm, yyyy] = fecha.split("/");
+      const day = parseInt(dd, 10);
       const month = parseInt(mm, 10);
       const year = parseInt(yyyy, 10);
       
+      // El nombre de la hoja será solo el día (1, 2, 3, etc.)
+      sheetName = day.toString();
+      
       // Cambiar al Google Sheet específico del mes si existe
-      if (baseEnvVarName && year === 2025 && month === 12) {
+      if (baseEnvVarName && year === 2024 && month === 11) {
+        // Noviembre 2024
+        const overrideId = process.env[`${baseEnvVarName}`];
+        if (overrideId) {
+          spreadsheetId = overrideId;
+          console.log("🔁 Usando Google Sheet específico para Noviembre 2024");
+        }
+      } else if (baseEnvVarName && year === 2024 && month === 12) {
+        // Diciembre 2024
         const overrideId = process.env[`${baseEnvVarName}_DIC_2025`];
         if (overrideId) {
           spreadsheetId = overrideId;
-          console.log("🔁 Usando Google Sheet específico para Diciembre 2025");
+          console.log("🔁 Usando Google Sheet específico para Diciembre 2024");
         }
-      } else if (baseEnvVarName && year === 2026 && month === 1) {
+      } else if (baseEnvVarName && year === 2025 && month === 11) {
+        // Noviembre 2025
+        const overrideId = process.env[`${baseEnvVarName}`];
+        if (overrideId) {
+          spreadsheetId = overrideId;
+          console.log("🔁 Usando Google Sheet específico para Noviembre 2025");
+        }
+      } 
+      else if (baseEnvVarName && year === 2026 && month === 1) {
+        // Enero 2026
         const overrideId = process.env[`${baseEnvVarName}_ENE_2026`];
         if (overrideId) {
           spreadsheetId = overrideId;
@@ -262,6 +283,7 @@ async function addRowToSheet({
       }
     } catch (e) {
       console.log("⚠️  Error parseando fecha, usando formato por defecto");
+      sheetName = fecha.replace(/\//g, "-"); // Fallback al formato antiguo
     }
     
     console.log(`📅 Guardando en la pestaña: ${sheetName}`);
