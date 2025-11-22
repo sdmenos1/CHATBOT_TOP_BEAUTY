@@ -42,36 +42,39 @@ function initializeSheetsClient() {
 
 async function findNextEmptyRow(spreadsheetId, sheetName) {
   try {
-    // Buscar en la columna B (REDES) en lugar de A, ya que A tiene números pre-rellenados
-    const range = `${sheetName}!B12:B`; // Empezar desde la fila 12
+    // Buscar en la columna B (REDES) empezando desde la fila 12
+    const range = `${sheetName}!B12:B`;
     const response = await sheetsClient.spreadsheets.values.get({
       spreadsheetId,
       range,
+      majorDimension: 'ROWS'
     });
 
     const rows = response.data.values || [];
     
-    // Buscar la primera fila vacía
-    let nextRow = 12; // Fila inicial
+    // Si no hay datos, empezar en la fila 12
+    if (rows.length === 0) {
+      console.log(`📍 Siguiente fila vacía en ${sheetName}: 12 (primera fila de datos)`);
+      return 12;
+    }
     
+    // Buscar la primera fila vacía entre las existentes
     for (let i = 0; i < rows.length; i++) {
-      // Si la celda está vacía o es undefined, esa es nuestra fila
-      if (!rows[i] || rows[i].length === 0 || !rows[i][0]) {
-        nextRow = 12 + i; // Sumar el offset de la fila 12
-        break;
+      if (!rows[i] || rows[i].length === 0 || !rows[i][0] || rows[i][0].trim() === '') {
+        const emptyRow = 12 + i;
+        console.log(`📍 Siguiente fila vacía en ${sheetName}: ${emptyRow} (encontrada vacía)`);
+        return emptyRow;
       }
     }
     
-    // Si todas las filas tienen datos, usar la siguiente después de la última
-    if (nextRow === 12 && rows.length > 0) {
-      nextRow = 12 + rows.length;
-    }
-    
-    console.log(`📍 Siguiente fila vacía en ${sheetName}: ${nextRow}`);
+    // Si todas las filas tienen datos, agregar después de la última
+    const nextRow = 12 + rows.length;
+    console.log(`📍 Siguiente fila vacía en ${sheetName}: ${nextRow} (después de ${rows.length} filas con datos)`);
     return nextRow;
   } catch (error) {
     console.error("❌ Error buscando fila vacía:", error.message);
-    return 12; // Retornar fila 12 por defecto (primera fila de datos)
+    // Si hay error, retornar fila 12
+    return 12;
   }
 }
 
@@ -381,15 +384,21 @@ async function addRowToSheet({
     console.log("✅ Cita guardada correctamente en Google Sheets");
     console.log(`   📊 Fila agregada: ${range}`);
 
-    if (nextRow > 2) {
+    // OPTIMIZACIÓN: copyDataValidation deshabilitado para reducir uso de memoria
+    // Si necesitas copiar validación de datos, configura las validaciones directamente en Google Sheets
+    // y se aplicarán automáticamente a las nuevas filas
+    /* 
+    if (nextRow > 12) {
       const sheetId = await getSheetId(spreadsheetId, sheetName);
       if (sheetId !== null) {
-        const sourceRow = 2;
+        const sourceRow = 12;
         await copyDataValidation(spreadsheetId, sheetId, sourceRow, nextRow);
       }
     } else {
       console.log('ℹ️  Primera cita en esta hoja, no hay validación para copiar aún');
     }
+    */
+    console.log('ℹ️  Copia de validación de datos deshabilitada para optimizar memoria');
 
     return {
       success: true,
