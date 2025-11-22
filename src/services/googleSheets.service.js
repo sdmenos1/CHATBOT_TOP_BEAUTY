@@ -42,8 +42,8 @@ function initializeSheetsClient() {
 
 async function findNextEmptyRow(spreadsheetId, sheetName) {
   try {
-    // Buscar en la columna B (REDES) empezando desde la fila 12
-    const range = `${sheetName}!B12:B100`; // Limitar a 100 filas para optimizar
+    // Buscar en la columna C (NOMBRE Y APELLIDO) empezando desde la fila 12
+    const range = `${sheetName}!C12:C100`; // Limitar a 100 filas para optimizar
     const response = await sheetsClient.spreadsheets.values.get({
       spreadsheetId,
       range,
