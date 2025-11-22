@@ -341,12 +341,12 @@ async function addRowToSheet({
     // F: HORA
     // G: TELÉFONO
     // H: WHATSAPP (vacío)
-    // I: PROMOCIÓN (vacío)
+    // I: SERVICIO (cambiado de Promoción a Servicio)
     // J: DNI (vacío)
     // K: FECHA DE NACIMIENTO (vacío)
     // L: VISITAS (vacío)
     // M: ESTILISTA (vacío)
-    // N: SERVICIO
+    // N: PROMOCIÓN (vacío)
     // O: PRECIO (vacío)
     // P: TIPO DE CABELLO (vacío)
     // Q: COMO SE ENTERÓ DE TOP (vacío)
@@ -367,12 +367,12 @@ async function addRowToSheet({
       hora,                   // F: HORA
       telefono,               // G: TELÉFONO
       '',                     // H: WHATSAPP
-      '',                     // I: PROMOCIÓN
+      servicio,               // I: SERVICIO (ahora aquí)
       '',                     // J: DNI
       '',                     // K: FECHA DE NACIMIENTO
       '',                     // L: VISITAS
       '',                     // M: ESTILISTA
-      servicio,               // N: SERVICIO
+      '',                     // N: PROMOCIÓN (vacío)
       '',                     // O: PRECIO (no se incluye)
       '',                     // P: TIPO DE CABELLO
       '',                     // Q: COMO SE ENTERÓ DE TOP
