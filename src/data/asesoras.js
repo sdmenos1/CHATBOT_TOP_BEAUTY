@@ -48,7 +48,7 @@ const asesoras = [
   { nombre: "JOSÉLIN", apellido: "TORREALBA", telefono: "51986264810" },
   { nombre: "GABRIELA", apellido: "RODRÍGUEZ", telefono: "51931477883" },
   { nombre: "DANIELA", apellido: "NAVAS", telefono: "51946696205" },
-  { nombre: "VIVIANA", apellido: "SÁNCHEZ", telefono: "5193098964" },
+  { nombre: "VIVIANA", apellido: "SÁNCHEZ", telefono: "51930989649" },
   { nombre: "ROSA", apellido: "BENITEZ", telefono: "51931477883" },
   { nombre: "ROCIO", apellido: "VIELMA", telefono: "51993748168" },
   { nombre: "DINORAH", apellido: "MENDOZA", telefono: "573128314495" },
@@ -103,7 +103,8 @@ const asesoras = [
   { nombre: "IRENE", apellido: "MONTERO", telefono: "573205220164" },
   { nombre: "JASMIN", apellido: "CHAPARRO", telefono: "573115584545" },
   { nombre: "CARMEN", apellido: "MERO", telefono: "573148938111" },
-  { nombre: "YORGELIS", apellido: "HERRERA", telefono: "573235104430" }
+  { nombre: "YORGELIS", apellido: "HERRERA", telefono: "573235104430" },
+  { nombre: "ADRIAN", apellido: "ENCISO", telefono: "51973706366" },
 ];
 
 /**
