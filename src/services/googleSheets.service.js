@@ -43,14 +43,20 @@ function initializeSheetsClient() {
 async function findNextEmptyRow(spreadsheetId, sheetName) {
   try {
     // Buscar en la columna B (REDES) empezando desde la fila 12
-    const range = `${sheetName}!B12:B`;
+    const range = `${sheetName}!B12:B100`; // Limitar a 100 filas para optimizar
     const response = await sheetsClient.spreadsheets.values.get({
       spreadsheetId,
       range,
-      majorDimension: 'ROWS'
+      majorDimension: 'ROWS',
+      valueRenderOption: 'UNFORMATTED_VALUE'
     });
 
     const rows = response.data.values || [];
+    
+    console.log(`🔍 DEBUG findNextEmptyRow:`);
+    console.log(`   - Hoja: ${sheetName}`);
+    console.log(`   - Filas encontradas: ${rows.length}`);
+    console.log(`   - Primeras 3 filas:`, rows.slice(0, 3));
     
     // Si no hay datos, empezar en la fila 12
     if (rows.length === 0) {
@@ -60,9 +66,9 @@ async function findNextEmptyRow(spreadsheetId, sheetName) {
     
     // Buscar la primera fila vacía entre las existentes
     for (let i = 0; i < rows.length; i++) {
-      if (!rows[i] || rows[i].length === 0 || !rows[i][0] || rows[i][0].trim() === '') {
+      if (!rows[i] || rows[i].length === 0 || !rows[i][0] || rows[i][0].toString().trim() === '') {
         const emptyRow = 12 + i;
-        console.log(`📍 Siguiente fila vacía en ${sheetName}: ${emptyRow} (encontrada vacía)`);
+        console.log(`📍 Siguiente fila vacía en ${sheetName}: ${emptyRow} (encontrada vacía en posición ${i})`);
         return emptyRow;
       }
     }
@@ -282,28 +288,28 @@ async function addRowToSheet({
       
       // Cambiar al Google Sheet específico del mes si existe
       if (baseEnvVarName && year === 2024 && month === 11) {
-        // Noviembre 2024
-        const overrideId = process.env[`${baseEnvVarName}`];
-        if (overrideId) {
-          spreadsheetId = overrideId;
-          console.log("🔁 Usando Google Sheet específico para Noviembre 2024");
-        }
+        // Noviembre 2024 - Usa la variable base sin sufijo
+        console.log("🔁 Usando Google Sheet para Noviembre 2024 (variable base)");
+        // spreadsheetId ya está configurado con la variable base
       } else if (baseEnvVarName && year === 2024 && month === 12) {
         // Diciembre 2024
-        const overrideId = process.env[`${baseEnvVarName}_DIC_2025`];
+        const overrideId = process.env[`${baseEnvVarName}_DIC_2024`];
         if (overrideId) {
           spreadsheetId = overrideId;
           console.log("🔁 Usando Google Sheet específico para Diciembre 2024");
         }
       } else if (baseEnvVarName && year === 2025 && month === 11) {
-        // Noviembre 2025
-        const overrideId = process.env[`${baseEnvVarName}`];
+        // Noviembre 2025 - Usa la variable base sin sufijo
+        console.log("🔁 Usando Google Sheet para Noviembre 2025 (variable base)");
+        // spreadsheetId ya está configurado con la variable base
+      } else if (baseEnvVarName && year === 2025 && month === 12) {
+        // Diciembre 2025
+        const overrideId = process.env[`${baseEnvVarName}_DIC_2025`];
         if (overrideId) {
           spreadsheetId = overrideId;
-          console.log("🔁 Usando Google Sheet específico para Noviembre 2025");
+          console.log("🔁 Usando Google Sheet específico para Diciembre 2025");
         }
-      } 
-      else if (baseEnvVarName && year === 2026 && month === 1) {
+      } else if (baseEnvVarName && year === 2026 && month === 1) {
         // Enero 2026
         const overrideId = process.env[`${baseEnvVarName}_ENE_2026`];
         if (overrideId) {
@@ -311,14 +317,20 @@ async function addRowToSheet({
           console.log("🔁 Usando Google Sheet específico para Enero 2026");
         }
       }
+      
+      console.log(`📊 DEBUG: SpreadsheetId final: ${spreadsheetId}`);
+      console.log(`📊 DEBUG: Nombre de hoja: ${sheetName}`);
     } catch (e) {
       console.log("⚠️  Error parseando fecha, usando formato por defecto");
       sheetName = fecha.replace(/\//g, "-"); // Fallback al formato antiguo
     }
     
     console.log(`📅 Guardando en la pestaña: ${sheetName}`);
+    console.log(`🔑 SpreadsheetId: ${spreadsheetId}`);
 
     const nextRow = await findNextEmptyRow(spreadsheetId, sheetName);
+    
+    console.log(`🔢 FILA ASIGNADA: ${nextRow}`);
 
     // Preparar los datos según el nuevo formato de columnas
     // A: N° (ya rellenada, no se modifica)
