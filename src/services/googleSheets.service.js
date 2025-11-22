@@ -268,8 +268,57 @@ async function addRowToSheet({
 
     const nextRow = await findNextEmptyRow(spreadsheetId, sheetName);
 
-    const values = [[nombre, telefono, servicio, precio, fecha, hora, estado, nombreAsesora, apellidoAsesora, telefonoAsesor]];
-    const range = `${sheetName}!A${nextRow}:J${nextRow}`;
+    // Preparar los datos según el nuevo formato de columnas
+    // A: N° (ya rellenada, no se modifica)
+    // B: REDES (Nombre completo de asesora)
+    // C: NOMBRE Y APELLIDO (Nombre completo del cliente)
+    // D: FECHA DE CONTACTO
+    // E: SEDE (vacío)
+    // F: HORA
+    // G: TELÉFONO
+    // H: WHATSAPP (vacío)
+    // I: PROMOCIÓN (vacío)
+    // J: DNI (vacío)
+    // K: FECHA DE NACIMIENTO (vacío)
+    // L: VISITAS (vacío)
+    // M: ESTILISTA (vacío)
+    // N: SERVICIO
+    // O: PRECIO (vacío)
+    // P: TIPO DE CABELLO (vacío)
+    // Q: COMO SE ENTERÓ DE TOP (vacío)
+    // R: EMAIL (vacío)
+    // S: NIVEL DE ATENCIÓN (vacío)
+    // T: OBSERVACIÓN (vacío)
+    // U: CONFIRMACIÓN
+    
+    const nombreCompletoCliente = nombre; // El nombre ya viene completo
+    const nombreCompletoAsesora = `${nombreAsesora} ${apellidoAsesora}`.trim();
+    
+    // Crear array con 20 columnas (B hasta U, A no se toca)
+    const values = [[
+      nombreCompletoAsesora,  // B: REDES
+      nombreCompletoCliente,  // C: NOMBRE Y APELLIDO
+      fecha,                  // D: FECHA DE CONTACTO
+      '',                     // E: SEDE
+      hora,                   // F: HORA
+      telefono,               // G: TELÉFONO
+      '',                     // H: WHATSAPP
+      '',                     // I: PROMOCIÓN
+      '',                     // J: DNI
+      '',                     // K: FECHA DE NACIMIENTO
+      '',                     // L: VISITAS
+      '',                     // M: ESTILISTA
+      servicio,               // N: SERVICIO
+      '',                     // O: PRECIO (no se incluye)
+      '',                     // P: TIPO DE CABELLO
+      '',                     // Q: COMO SE ENTERÓ DE TOP
+      '',                     // R: EMAIL
+      '',                     // S: NIVEL DE ATENCIÓN
+      '',                     // T: OBSERVACIÓN
+      estado                  // U: CONFIRMACIÓN
+    ]];
+    
+    const range = `${sheetName}!B${nextRow}:U${nextRow}`;
 
     const response = await sheetsClient.spreadsheets.values.update({
       spreadsheetId,
