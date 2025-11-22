@@ -365,8 +365,8 @@ async function addRowToSheet({
       fecha,                  // D: FECHA DE CONTACTO
       '',                     // E: SEDE
       hora,                   // F: HORA
-      telefono,               // G: TELÉFONO
-      '',                     // H: WHATSAPP
+      '',               // G: TELÉFONO
+      telefono,                     // H: WHATSAPP
       servicio,               // I: SERVICIO (ahora aquí)
       '',                     // J: DNI
       '',                     // K: FECHA DE NACIMIENTO
