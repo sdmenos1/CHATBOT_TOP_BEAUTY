@@ -43,6 +43,7 @@ function normalizeLocationSelection(text) {
     k: "Lince",
     l: "Luxury",
     m: "Mor",
+    n: "Luxury Envigado",
   };
 
   if (letter && byLetter[letter]) return byLetter[letter];
@@ -61,6 +62,7 @@ function normalizeLocationSelection(text) {
   if (normalized.includes("lince")) return "Lince";
   if (normalized.includes("luxury")) return "Luxury";
   if (normalized === "mor" || normalized.includes(" mor")) return "Mor";
+  if (normalized.includes("envigado") || normalized.includes("luxury envigado")) return "Luxury Envigado";
 
   return null;
 }

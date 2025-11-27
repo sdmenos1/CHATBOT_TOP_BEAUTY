@@ -136,6 +136,7 @@ j) Providencia
 k) Lince
 l) Luxury
 m) Mor
+n) Luxury Envigado
 
 Por favor, responde con la letra o el nombre del local.`;
 
@@ -162,7 +163,8 @@ async function handleLocationSelection(user, text) {
         + "j) Providencia\n"
         + "k) Lince\n"
         + "l) Luxury\n"
-        + "m) Mor"
+        + "m) Mor\n"
+        + "n) Luxury Envigado"
     );
     return;
   }

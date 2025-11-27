@@ -260,6 +260,10 @@ async function addRowToSheet({
         spreadsheetId = process.env.GOOGLE_SHEETS_ID_MOR;
         baseEnvVarName = "GOOGLE_SHEETS_ID_MOR";
         break;
+      case "Luxury Envigado":
+        spreadsheetId = process.env.GOOGLE_SHEETS_ID_LUXURY_ENVIGADO;
+        baseEnvVarName = "GOOGLE_SHEETS_ID_LUXURY_ENVIGADO";
+        break;
       default:
         spreadsheetId = process.env.GOOGLE_SHEETS_ID;
         baseEnvVarName = "GOOGLE_SHEETS_ID";
