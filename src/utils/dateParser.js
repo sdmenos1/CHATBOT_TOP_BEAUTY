@@ -4,6 +4,11 @@ const { DateTime } = require("luxon");
 
 const LIMA_TIMEZONE = 'America/Lima';
 
+// AJUSTE DE HORA: Se resta 5 horas a la hora actual para permitir
+// reservar citas que técnicamente ya pasaron pero aún son válidas
+// (por ejemplo, reservar a las 11 PM cuando son las 9 PM del mismo día)
+const HORA_OFFSET_MINUTOS = -300; // -5 horas en minutos
+
 function parseNaturalDate(text, referenceDate = null) {
   const limaTime = referenceDate 
     ? DateTime.fromJSDate(referenceDate).setZone(LIMA_TIMEZONE)
@@ -83,7 +88,8 @@ function parseNaturalDate(text, referenceDate = null) {
       }
     }
 
-    const nowLima = DateTime.now().setZone(LIMA_TIMEZONE);
+    // Aplicar offset de -5 horas a la hora actual para la comparación
+    const nowLima = DateTime.now().setZone(LIMA_TIMEZONE).plus({ minutes: HORA_OFFSET_MINUTOS });
     const diffMinutes = parsedDateTime.diff(nowLima, 'minutes').minutes;
 
     console.log('⏰ Comparando fechas (Lima):', {
@@ -149,7 +155,8 @@ function parseNaturalDate(text, referenceDate = null) {
     if (ampm === 'pm' && hour < 12) hour += 12;
     if (ampm === 'am' && hour === 12) hour = 0;
     let dt = DateTime.fromObject({ year, month, day, hour, minute, second: 0 }, { zone: LIMA_TIMEZONE });
-    if (dt < limaTime) {
+    const adjustedNow = limaTime.plus({ minutes: HORA_OFFSET_MINUTOS });
+    if (dt < adjustedNow) {
       dt = dt.plus({ year: 1 });
     }
     console.log('✅ Fecha parseada por fallback (día/mes/hora):', dt.toFormat('yyyy-MM-dd HH:mm:ss'));
@@ -167,7 +174,8 @@ function parseNaturalDate(text, referenceDate = null) {
     let dt = limaTime;
     const currentWeekday = dt.weekday;
     let addDays = (targetWeekday - currentWeekday + 7) % 7;
-    if (addDays === 0 && dt.set({ hour, minute }) <= dt) addDays = 7;
+    const adjustedNow = dt.plus({ minutes: HORA_OFFSET_MINUTOS });
+    if (addDays === 0 && dt.set({ hour, minute }) <= adjustedNow) addDays = 7;
     dt = dt.plus({ days: addDays }).set({ hour, minute, second: 0, millisecond: 0 });
     console.log('✅ Fecha parseada por fallback (día de semana/hora):', dt.toFormat('yyyy-MM-dd HH:mm:ss'));
     return dt.toJSDate();
