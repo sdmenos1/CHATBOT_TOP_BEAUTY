@@ -362,11 +362,18 @@ async function addRowToSheet({
     const nombreCompletoCliente = nombre; // El nombre ya viene completo
     const nombreCompletoAsesora = `${nombreAsesora} ${apellidoAsesora}`.trim();
     
+    // Obtener la fecha actual (fecha de contacto)
+    const fechaActual = new Date();
+    const dia = String(fechaActual.getDate()).padStart(2, '0');
+    const mes = String(fechaActual.getMonth() + 1).padStart(2, '0');
+    const anio = fechaActual.getFullYear();
+    const fechaContacto = `${dia}/${mes}/${anio}`;
+    
     // Crear array con 20 columnas (B hasta U, A no se toca)
     const values = [[
       nombreCompletoAsesora,  // B: REDES
       nombreCompletoCliente,  // C: NOMBRE Y APELLIDO
-      fecha,                  // D: FECHA DE CONTACTO
+      fechaContacto,          // D: FECHA DE CONTACTO (fecha actual del registro)
       '',                     // E: SEDE
       hora,                   // F: HORA
       '',               // G: TELÉFONO
