@@ -10,7 +10,7 @@ const asesoras = [
   // Colombia
   { nombre: "ELIANA", apellido: "MERCADO", telefono: "573134950422" },
   { nombre: "MARIA", apellido: "GARCIA", telefono: "573114594798" },
-  { nombre: "YESICA", apellido: "ROJAS", telefono: "573134544701" },
+  { nombre: "BELKIS", apellido: "", telefono: "573134544701" },
   { nombre: "MERY", apellido: "PINEDA", telefono: "573115599569" },
   { nombre: "ORIANA", apellido: "GÓMEZ", telefono: "573136007914" },
   { nombre: "LARA", apellido: "TORREALBA", telefono: "573136007942" },
