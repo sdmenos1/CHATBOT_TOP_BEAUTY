@@ -10,7 +10,7 @@ const asesoras = [
   // Colombia
   { nombre: "ELIANA", apellido: "MERCADO", telefono: "573134950422" },
   { nombre: "MARIA", apellido: "GARCIA", telefono: "573114594798" },
-  { nombre: "BELKIS", apellido: "", telefono: "573134544701" },
+  { nombre: "BELKIS", apellido: "GARCIA", telefono: "573134544701" },
   { nombre: "MERY", apellido: "PINEDA", telefono: "573115599569" },
   { nombre: "ORIANA", apellido: "GÓMEZ", telefono: "573136007914" },
   { nombre: "LARA", apellido: "TORREALBA", telefono: "573136007942" },
@@ -80,7 +80,6 @@ const asesoras = [
   { nombre: "LUIS", apellido: "OLIVARES", telefono: "573114621234" },
   { nombre: "KATHY", apellido: "ESCALONA", telefono: "573136540717" },
   { nombre: "Jasiel ", apellido: "DUARTE", telefono: "573015602972" },
-  { nombre: "BELKIS", apellido: "GARCIA", telefono: "573143218694" },
   { nombre: "PAOLA", apellido: "RAMOS", telefono: "573114639781" },
   { nombre: "MARIA", apellido: "GARCIA", telefono: "573114594798" },
   { nombre: "MERY", apellido: "PIRELA", telefono: "573115599569" },
