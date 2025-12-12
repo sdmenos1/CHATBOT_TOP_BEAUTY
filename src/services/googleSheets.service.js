@@ -291,22 +291,7 @@ async function addRowToSheet({
       sheetName = day.toString();
       
       // Cambiar al Google Sheet específico del mes si existe
-      if (baseEnvVarName && year === 2024 && month === 11) {
-        // Noviembre 2024 - Usa la variable base sin sufijo
-        console.log("🔁 Usando Google Sheet para Noviembre 2024 (variable base)");
-        // spreadsheetId ya está configurado con la variable base
-      } else if (baseEnvVarName && year === 2024 && month === 12) {
-        // Diciembre 2024
-        const overrideId = process.env[`${baseEnvVarName}_DIC_2024`];
-        if (overrideId) {
-          spreadsheetId = overrideId;
-          console.log("🔁 Usando Google Sheet específico para Diciembre 2024");
-        }
-      } else if (baseEnvVarName && year === 2025 && month === 11) {
-        // Noviembre 2025 - Usa la variable base sin sufijo
-        console.log("🔁 Usando Google Sheet para Noviembre 2025 (variable base)");
-        // spreadsheetId ya está configurado con la variable base
-      } else if (baseEnvVarName && year === 2025 && month === 12) {
+      if (baseEnvVarName && year === 2025 && month === 12) {
         // Diciembre 2025
         const overrideId = process.env[`${baseEnvVarName}_DIC_2025`];
         if (overrideId) {
@@ -319,6 +304,13 @@ async function addRowToSheet({
         if (overrideId) {
           spreadsheetId = overrideId;
           console.log("🔁 Usando Google Sheet específico para Enero 2026");
+        }
+      } else if (baseEnvVarName && year === 2026 && month === 2) {
+        // Febrero 2026
+        const overrideId = process.env[`${baseEnvVarName}_FEB_2026`];
+        if (overrideId) {
+          spreadsheetId = overrideId;
+          console.log("🔁 Usando Google Sheet específico para Febrero 2026");
         }
       }
       
