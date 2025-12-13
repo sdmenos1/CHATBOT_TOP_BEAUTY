@@ -117,7 +117,8 @@ const asesoras = [
   { nombre: "SOL", apellido: "UZCATEGUI", telefono: "573016590223" },
   { nombre: "ANA", apellido: "MENDOZA", telefono: "573016590305" },
   { nombre: "LUCIA", apellido: "UZCATEGUI", telefono: "573017938075" },
-  { nombre: "YULI", apellido: "MALUENGA", telefono: "573017937307" }
+  { nombre: "YULI", apellido: "MALUENGA", telefono: "573017937307" },
+  { nombre: "MARIA", apellido: "CASTRO", telefono: "573225891261" },
 ];
 
 /**
