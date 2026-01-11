@@ -18,7 +18,7 @@ const asesoras = [
   { nombre: "EVA", apellido: "DUGARTE", telefono: "573202088761" },
   { nombre: "YULIANA", apellido: "RAMIREZ", telefono: "573134486342" },
   { nombre: "ILIANA", apellido: "VALLES", telefono: "56977551435" },
-  { nombre: "ROUS", apellido: "COLINA", telefono: "56956935833" },
+  { nombre: "ROUS", apellido: "COLINA", telefono: "56923734939" },
   { nombre: "BARBARA", apellido: "TORREALBA", telefono: "56940123023" },
   { nombre: "MIA", apellido: "ESCALONA", telefono: "56923734939" },
   { nombre: "ZARA", apellido: "FERNANDEZ", telefono: "56979801730" },
@@ -51,7 +51,7 @@ const asesoras = [
   { nombre: "ROSA", apellido: "BENITEZ", telefono: "51931477883" },
   { nombre: "ROCIO", apellido: "VIELMA", telefono: "51993748168" },
   { nombre: "DINORAH", apellido: "MENDOZA", telefono: "573128314495" },
-  { nombre: "INGRI", apellido: "ROJAS", telefono: "573225352464" },
+  { nombre: "INGRI", apellido: "ROJAS", telefono: "573159172420" },
   { nombre: "AIDE", apellido: "TORREAYAS", telefono: "573225217907" },
   { nombre: "DAMELIZ", apellido: "NARANJO", telefono: "573002597042" },
   { nombre: "ANA", apellido: "MENDOZA", telefono: "573016590305" },
@@ -62,7 +62,7 @@ const asesoras = [
   { nombre: "YUSMARY", apellido: "MORALES", telefono: "573205726624" },
   { nombre: "ALIX", apellido: "NAVAS", telefono: "573012753832" },
   { nombre: "OMAIRA", apellido: "PARRA", telefono: "573044654151" },
-  { nombre: "YESSICA", apellido: "SALAS", telefono: "573016588399" },
+  { nombre: "YESSICA", apellido: "SALAS", telefono: "573017934397" },
   { nombre: "NAIRETH", apellido: "MALUENGA", telefono: "573016591773" },
   { nombre: "GLADYS", apellido: "NAVAS", telefono: "573244278344" },
   { nombre: "YELIMAR", apellido: "RAMIREZ", telefono: "56937719433" },
@@ -125,7 +125,7 @@ const asesoras = [
   { nombre: "ROSA", apellido: "FERNANDEZ", telefono: "573018675377" },
   { nombre: "PAULA", apellido: "NAVAS", telefono: "573018675379" },
   { nombre: "MARIA", apellido: "NAVAS", telefono: "573159174328" },
-  { nombre: "EVELYN", apellido: "MARQUEZ", telefono: "573159173415" },
+  { nombre: "EVELYN", apellido: "MARQUEZ", telefono: "573159172418" },
 
 ];
 
