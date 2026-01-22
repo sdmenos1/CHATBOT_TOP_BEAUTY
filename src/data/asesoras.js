@@ -24,7 +24,7 @@ const asesoras = [
   { nombre: "ANDREINA", apellido: "MENDOZA", telefono: "56973950206" },
   { nombre: "ALEJANDRA", apellido: "CONTRERAS", telefono: "51989879856" },
   { nombre: "CARMEN", apellido: "JIMÉNEZ", telefono: "51963597319" },
-  { nombre: "ANGIE", apellido: "PULIDO", telefono: "51961883708" },
+  { nombre: "ISABELLA", apellido: "ESCALONA", telefono: "51961883708" },
   { nombre: "DIANA", apellido: "ALTO", telefono: "51913529195" },
   { nombre: "MILAGROS", apellido: "JASPE", telefono: "51947706265" },
   { nombre: "ANDRE", apellido: "ORTEGA", telefono: "51993122067" },
@@ -81,7 +81,7 @@ const asesoras = [
   { nombre: "MERY", apellido: "PIRELA", telefono: "573115599569" },
   { nombre: "CAROLINA", apellido: "SANCHEZ", telefono: "573146436215" },
   { nombre: "MARIBEL", apellido: "LUNA", telefono: "573108143031" },
-  { nombre: "LESLY", apellido: "ZAMBRANO", telefono: "573189766364" },
+  { nombre: "FABIOLA", apellido: "RIVAS", telefono: "573189766364" },
   { nombre: "ALEJANDRA", apellido: "NAVA", telefono: "573108146186" },
   { nombre: "RAQUEL", apellido: "PAREDES", telefono: "573232140925" },
   { nombre: "CAMILA", apellido: "ROA", telefono: "51965285814" },
@@ -92,7 +92,7 @@ const asesoras = [
   { nombre: "CAROLINA", apellido: "MONTER", telefono: "51953781376" },
   { nombre: "ELIZABETH", apellido: "PONCE", telefono: "51947710508" },
   { nombre: "GENESIS", apellido: "LUGO", telefono: "51973348900" },
-  { nombre: "CARLA", apellido: "GÓMEZ", telefono: "573235912512" },
+  { nombre: "EMILY", apellido: "URBINA", telefono: "573235912512" },
   { nombre: "CAMILA", apellido: "ROA", telefono: "573114639763" },
   { nombre: "NATHALY", apellido: "GOMEZ", telefono: "573148913899" },
   { nombre: "IRENE", apellido: "MONTERO", telefono: "573205220164" },
@@ -128,6 +128,9 @@ const asesoras = [
   { nombre: "EMILI", apellido: "TORREYAS", telefono: "56926133485" },
   { nombre: "CAROLINA", apellido: "SANCHEZ", telefono: "573136299858" },
   { nombre: "AURA", apellido: "CHILE", telefono: "56981830306" },
+  { nombre: "GREY", apellido: "CAPOTE", telefono: "563207515748" },
+  { nombre: "DANIELA", apellido: "VERA", telefono: "563207513240" },
+
 
 ];
 
