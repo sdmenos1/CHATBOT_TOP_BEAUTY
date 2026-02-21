@@ -206,6 +206,11 @@ async function addRowToSheet({
     console.log(`📍 Longitud: ${local?.length}`);
     console.log(`📍 Caracteres: ${JSON.stringify(local?.split('').map(c => c.charCodeAt(0)))}`);
 
+    // Debug: Verificar variables de entorno disponibles
+    const envVars = Object.keys(process.env).filter(k => k.includes('GOOGLE_SHEETS_ID') && k.includes('TRUJILLO'));
+    console.log(`🔍 Variables TRUJILLO encontradas: ${envVars.length}`);
+    envVars.forEach(v => console.log(`   - ${v}: ${process.env[v] ? '✅ Set' : '❌ Undefined'} (longitud: ${process.env[v]?.length || 0})`));
+
     let spreadsheetId;
     let baseEnvVarName;
     switch (local) {
