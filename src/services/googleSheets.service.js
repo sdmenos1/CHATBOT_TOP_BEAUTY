@@ -211,83 +211,59 @@ async function addRowToSheet({
     console.log(`🔍 Variables TRUJILLO encontradas: ${envVars.length}`);
     envVars.forEach(v => console.log(`   - ${v}: ${process.env[v] ? '✅ Set' : '❌ Undefined'} (longitud: ${process.env[v]?.length || 0})`));
 
-    let spreadsheetId;
     let baseEnvVarName;
     switch (local) {
       case "Chimbote":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_CHIMBOTE;
         baseEnvVarName = "GOOGLE_SHEETS_ID_CHIMBOTE";
         break;
       case "Trujillo":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_TRUJILLO;
         baseEnvVarName = "GOOGLE_SHEETS_ID_TRUJILLO";
         break;
       case "Olivos": // backward compatibility
       case "Los Olivos":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_OLIVOS;
         baseEnvVarName = "GOOGLE_SHEETS_ID_OLIVOS";
         break;
       case "Arequipa":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_AREQUIPA;
         baseEnvVarName = "GOOGLE_SHEETS_ID_AREQUIPA";
         break;
       case "Lince":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_LINCE;
         baseEnvVarName = "GOOGLE_SHEETS_ID_LINCE";
         break;
       case "Pucallpa":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_PUCALLPA;
         baseEnvVarName = "GOOGLE_SHEETS_ID_PUCALLPA";
         break;
       case "Luxury":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_LUXURY;
         baseEnvVarName = "GOOGLE_SHEETS_ID_LUXURY";
         break;
       case "Medellin": // legacy without accent
       case "Medellín":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_MEDELLIN;
         baseEnvVarName = "GOOGLE_SHEETS_ID_MEDELLIN";
         break;
       case "Chapineros": // legacy plural
       case "Chapinero":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_CHAPINEROS;
         baseEnvVarName = "GOOGLE_SHEETS_ID_CHAPINEROS";
         break;
       case "Los Leones":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_LOS_LEONES;
         baseEnvVarName = "GOOGLE_SHEETS_ID_LOS_LEONES";
         break;
       case "Providencia":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_PROVIDENCIA;
         baseEnvVarName = "GOOGLE_SHEETS_ID_PROVIDENCIA";
         break;
       case "Chico":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_CHICO;
         baseEnvVarName = "GOOGLE_SHEETS_ID_CHICO";
         break;
       case "Mor":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_MOR;
         baseEnvVarName = "GOOGLE_SHEETS_ID_MOR";
         break;
       case "Luxury Envigado":
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID_LUXURY_ENVIGADO;
         baseEnvVarName = "GOOGLE_SHEETS_ID_LUXURY_ENVIGADO";
         break;
       default:
-        spreadsheetId = process.env.GOOGLE_SHEETS_ID;
         baseEnvVarName = "GOOGLE_SHEETS_ID";
     }
 
-    if (!spreadsheetId) {
-      console.error(
-        `❌ GOOGLE_SHEETS_ID para el local "${local}" no está configurado en las variables de entorno`
-      );
-      return { success: false, error: `GOOGLE_SHEETS_ID para ${local} no configurado` };
-    }
-
-    console.log(`📄 Intentando agregar cita a Google Sheets del local: ${local}...`);
-
-    // Determinar qué Google Sheet usar según el mes y usar el día como nombre de hoja
+    // Determinar qué Google Sheet usar según el mes
+    let spreadsheetId = null;
     let sheetName;
     
     try {
@@ -299,35 +275,37 @@ async function addRowToSheet({
       // El nombre de la hoja será solo el día (1, 2, 3, etc.)
       sheetName = day.toString();
       
-      // Cambiar al Google Sheet específico del mes si existe
+      // Intentar usar el Google Sheet específico del mes primero
       if (baseEnvVarName && year === 2025 && month === 12) {
         // Diciembre 2025
-        const overrideId = process.env[`${baseEnvVarName}_DIC_2025`];
-        if (overrideId) {
-          spreadsheetId = overrideId;
+        spreadsheetId = process.env[`${baseEnvVarName}_DIC_2025`];
+        if (spreadsheetId) {
           console.log("🔁 Usando Google Sheet específico para Diciembre 2025");
         }
       } else if (baseEnvVarName && year === 2026 && month === 1) {
         // Enero 2026
-        const overrideId = process.env[`${baseEnvVarName}_ENE_2026`];
-        if (overrideId) {
-          spreadsheetId = overrideId;
+        spreadsheetId = process.env[`${baseEnvVarName}_ENE_2026`];
+        if (spreadsheetId) {
           console.log("🔁 Usando Google Sheet específico para Enero 2026");
         }
       } else if (baseEnvVarName && year === 2026 && month === 2) {
         // Febrero 2026
-        const overrideId = process.env[`${baseEnvVarName}_FEB_2026`];
-        if (overrideId) {
-          spreadsheetId = overrideId;
+        spreadsheetId = process.env[`${baseEnvVarName}_FEB_2026`];
+        if (spreadsheetId) {
           console.log("🔁 Usando Google Sheet específico para Febrero 2026");
         }
       } else if (baseEnvVarName && year === 2026 && month === 3) {
         // Marzo 2026
-        const overrideId = process.env[`${baseEnvVarName}_MAR_2026`];
-        if (overrideId) {
-          spreadsheetId = overrideId;
+        spreadsheetId = process.env[`${baseEnvVarName}_MAR_2026`];
+        if (spreadsheetId) {
           console.log("🔁 Usando Google Sheet específico para Marzo 2026");
         }
+      }
+      
+      // Si no hay ID mensual específico, usar el base
+      if (!spreadsheetId && baseEnvVarName) {
+        spreadsheetId = process.env[baseEnvVarName];
+        console.log("� Usando Google Sheet base (no hay específico para este mes)");
       }
       
       console.log(`📊 DEBUG: SpreadsheetId final: ${spreadsheetId}`);
@@ -335,6 +313,10 @@ async function addRowToSheet({
     } catch (e) {
       console.log("⚠️  Error parseando fecha, usando formato por defecto");
       sheetName = fecha.replace(/\//g, "-"); // Fallback al formato antiguo
+      // Intentar obtener el base si hay error
+      if (baseEnvVarName) {
+        spreadsheetId = process.env[baseEnvVarName];
+      }
     }
     
     console.log(`📅 Guardando en la pestaña: ${sheetName}`);
