@@ -202,6 +202,10 @@ async function addRowToSheet({
       return { success: false, error: "Google Sheets no configurado" };
     }
 
+    console.log(`📍 Local recibido: "${local}"`);
+    console.log(`📍 Longitud: ${local?.length}`);
+    console.log(`📍 Caracteres: ${JSON.stringify(local?.split('').map(c => c.charCodeAt(0)))}`);
+
     let spreadsheetId;
     let baseEnvVarName;
     switch (local) {
