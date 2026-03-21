@@ -300,6 +300,12 @@ async function addRowToSheet({
         if (spreadsheetId) {
           console.log("🔁 Usando Google Sheet específico para Marzo 2026");
         }
+      } else if (baseEnvVarName && year === 2026 && month === 4) {
+        // Abril 2026
+        spreadsheetId = process.env[`${baseEnvVarName}_ABR_2026`];
+        if (spreadsheetId) {
+          console.log("🔁 Usando Google Sheet específico para Abril 2026");
+        }
       }
       
       // Si no hay ID mensual específico, usar el base
