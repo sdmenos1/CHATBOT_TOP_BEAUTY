@@ -137,7 +137,7 @@ k) Lince
 l) Luxury
 m) Mor
 n) Luxury Envigado
-
+ñ) Itagüí
 Por favor, responde con la letra o el nombre del local.`;
 
   await whatsappService.sendMessage(user.phoneNumber, welcomeMessage);
@@ -164,7 +164,8 @@ async function handleLocationSelection(user, text) {
         + "k) Lince\n"
         + "l) Luxury\n"
         + "m) Mor\n"
-        + "n) Luxury Envigado"
+        + "n) Luxury Envigado\n"
+        + "ñ) Itagüí"
     );
     return;
   }
@@ -281,7 +282,9 @@ async function handleConfirmation(user, text) {
         + "j) Providencia\n"
         + "k) Lince\n"
         + "l) Luxury\n"
-        + "m) Mor"
+        + "m) Mor\n"
+        + "n) Luxury Envigado\n"
+        + "ñ) Itagüí"
     );
     return;
   }

@@ -45,6 +45,7 @@ const userSchema = new mongoose.Schema(
         "Luxury",
         "Mor",
         "Luxury Envigado",
+        "Itagüí",
         null,
       ],
       default: null,
