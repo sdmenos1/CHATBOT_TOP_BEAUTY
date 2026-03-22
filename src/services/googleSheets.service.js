@@ -206,11 +206,6 @@ async function addRowToSheet({
     console.log(`📍 Longitud: ${local?.length}`);
     console.log(`📍 Caracteres: ${JSON.stringify(local?.split('').map(c => c.charCodeAt(0)))}`);
 
-    // Debug: Verificar variables de entorno disponibles
-    const envVars = Object.keys(process.env).filter(k => k.includes('GOOGLE_SHEETS_ID') && k.includes('TRUJILLO'));
-    console.log(`🔍 Variables TRUJILLO encontradas: ${envVars.length}`);
-    envVars.forEach(v => console.log(`   - ${v}: ${process.env[v] ? '✅ Set' : '❌ Undefined'} (longitud: ${process.env[v]?.length || 0})`));
-
     let baseEnvVarName;
     switch (local) {
       case "Chimbote":
@@ -264,6 +259,11 @@ async function addRowToSheet({
       default:
         baseEnvVarName = "GOOGLE_SHEETS_ID";
     }
+
+    // Debug: Verificar variables de entorno disponibles para el local actual
+    const envVars = Object.keys(process.env).filter(k => k.includes('GOOGLE_SHEETS_ID') && k.includes(baseEnvVarName?.split('_').pop() || ''));
+    console.log(`🔍 Variables ${local} encontradas: ${envVars.length}`);
+    envVars.forEach(v => console.log(`   - ${v}: ${process.env[v] ? '✅ Set' : '❌ Undefined'} (longitud: ${process.env[v]?.length || 0})`));
 
     // Determinar qué Google Sheet usar según el mes
     let spreadsheetId = null;
