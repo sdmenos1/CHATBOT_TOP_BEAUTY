@@ -45,6 +45,7 @@ function normalizeLocationSelection(text) {
     m: "Mor",
     n: "Luxury Envigado",
     ñ: "Itagüí",
+    o: "Unilago",
   };
 
   if (letter && byLetter[letter]) return byLetter[letter];
@@ -65,6 +66,7 @@ function normalizeLocationSelection(text) {
   if (normalized === "mor" || normalized.includes(" mor")) return "Mor";
   if (normalized.includes("envigado") || normalized.includes("luxury envigado")) return "Luxury Envigado";
   if (normalized.includes("itagui") || normalized.includes("itagüí")) return "Itagüí";
+  if (normalized.includes("unilago")) return "Unilago";
 
   return null;
 }

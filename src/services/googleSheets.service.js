@@ -256,6 +256,9 @@ async function addRowToSheet({
       case "Itagüí":
         baseEnvVarName = "GOOGLE_SHEETS_ID_ITAGUI";
         break;
+      case "Unilago":
+        baseEnvVarName = "GOOGLE_SHEETS_ID_UNILAGO";
+        break;
       default:
         baseEnvVarName = "GOOGLE_SHEETS_ID";
     }
