@@ -3,7 +3,7 @@ const User = require("../models/user.model");
 const whatsappService = require("./whatsapp.service");
 const sessionStore = require("../utils/sessionStore");
 const { addRowToSheet } = require("./googleSheets.service");
-const { buscarAsesoraPorTelefono } = require("../data/asesoras");
+const { findAdvisorByPhone } = require("./advisor.service");
 const {
   parseNaturalDate,
   formatDateForUser,
@@ -339,8 +339,8 @@ async function handleDateInput(user, text) {
     const horaFormateada = parsedLimaDateTime.toFormat('hh:mm a');
     const fechaFormateada = parsedLimaDateTime.toFormat('dd/MM/yyyy');
 
-    // Buscar información de la asesora
-    const asesoraInfo = buscarAsesoraPorTelefono(user.phoneNumber);
+    // Buscar información de la asesora de forma dinámica desde la API de Caja
+    const asesoraInfo = await findAdvisorByPhone(user.phoneNumber);
     
     const result = await addRowToSheet({
       local: user.selectedLocation,
