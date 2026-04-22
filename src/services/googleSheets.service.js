@@ -52,18 +52,18 @@ async function findNextEmptyRow(spreadsheetId, sheetName) {
     });
 
     const rows = response.data.values || [];
-    
+
     console.log(`🔍 DEBUG findNextEmptyRow:`);
     console.log(`   - Hoja: ${sheetName}`);
     console.log(`   - Filas encontradas: ${rows.length}`);
     console.log(`   - Primeras 3 filas:`, rows.slice(0, 3));
-    
+
     // Si no hay datos, empezar en la fila 12
     if (rows.length === 0) {
       console.log(`📍 Siguiente fila vacía en ${sheetName}: 12 (primera fila de datos)`);
       return 12;
     }
-    
+
     // Buscar la primera fila vacía entre las existentes
     for (let i = 0; i < rows.length; i++) {
       if (!rows[i] || rows[i].length === 0 || !rows[i][0] || rows[i][0].toString().trim() === '') {
@@ -72,7 +72,7 @@ async function findNextEmptyRow(spreadsheetId, sheetName) {
         return emptyRow;
       }
     }
-    
+
     // Si todas las filas tienen datos, agregar después de la última
     const nextRow = 12 + rows.length;
     console.log(`📍 Siguiente fila vacía en ${sheetName}: ${nextRow} (después de ${rows.length} filas con datos)`);
@@ -97,7 +97,7 @@ async function getSheetId(spreadsheetId, sheetName) {
     if (sheet) {
       return sheet.properties.sheetId;
     }
-    
+
     console.warn(`⚠️  No se encontró la hoja "${sheetName}"`);
     return null;
   } catch (error) {
@@ -134,14 +134,14 @@ async function copyDataValidation(spreadsheetId, sheetId, sourceRow, targetRow) 
 
     const rowData = sheets[0].data[0].rowData || [];
     const sourceRowData = rowData[0];
-    
+
     if (!sourceRowData || !sourceRowData.values) {
       console.log('⚠️  No hay datos en la fila fuente');
       return false;
     }
 
     const requests = [];
-    
+
     sourceRowData.values.forEach((cell, colIndex) => {
       if (cell.dataValidation) {
         requests.push({
@@ -164,7 +164,7 @@ async function copyDataValidation(spreadsheetId, sheetId, sourceRow, targetRow) 
         spreadsheetId,
         resource: { requests },
       });
-      
+
       console.log(`✅ Copiada validación de datos de fila ${sourceRow} a fila ${targetRow}`);
       return true;
     } else {
@@ -271,16 +271,16 @@ async function addRowToSheet({
     // Determinar qué Google Sheet usar según el mes
     let spreadsheetId = null;
     let sheetName;
-    
+
     try {
       const [dd, mm, yyyy] = fecha.split("/");
       const day = parseInt(dd, 10);
       const month = parseInt(mm, 10);
       const year = parseInt(yyyy, 10);
-      
+
       // El nombre de la hoja será solo el día (1, 2, 3, etc.)
       sheetName = day.toString();
-      
+
       // Intentar usar el Google Sheet específico del mes primero
       if (baseEnvVarName && year === 2025 && month === 12) {
         // Diciembre 2025
@@ -312,14 +312,20 @@ async function addRowToSheet({
         if (spreadsheetId) {
           console.log("🔁 Usando Google Sheet específico para Abril 2026");
         }
+      } else if (baseEnvVarName && year === 2026 && month === 5) {
+        // Mayo 2026
+        spreadsheetId = process.env[`${baseEnvVarName}_MAY_2026`];
+        if (spreadsheetId) {
+          console.log("🔁 Usando Google Sheet específico para Mayo 2026");
+        }
       }
-      
+
       // Si no hay ID mensual específico, usar el base
       if (!spreadsheetId && baseEnvVarName) {
         spreadsheetId = process.env[baseEnvVarName];
-        console.log("� Usando Google Sheet base (no hay específico para este mes)");
+        console.log(" Usando Google Sheet base (no hay específico para este mes)");
       }
-      
+
       console.log(`📊 DEBUG: SpreadsheetId final: ${spreadsheetId}`);
       console.log(`📊 DEBUG: Nombre de hoja: ${sheetName}`);
     } catch (e) {
@@ -330,12 +336,12 @@ async function addRowToSheet({
         spreadsheetId = process.env[baseEnvVarName];
       }
     }
-    
+
     console.log(`📅 Guardando en la pestaña: ${sheetName}`);
     console.log(`🔑 SpreadsheetId: ${spreadsheetId}`);
 
     const nextRow = await findNextEmptyRow(spreadsheetId, sheetName);
-    
+
     console.log(`🔢 FILA ASIGNADA: ${nextRow}`);
 
     // Preparar los datos según el nuevo formato de columnas
@@ -360,17 +366,17 @@ async function addRowToSheet({
     // S: NIVEL DE ATENCIÓN (vacío)
     // T: OBSERVACIÓN (vacío)
     // U: CONFIRMACIÓN
-    
+
     const nombreCompletoCliente = nombre; // El nombre ya viene completo
     const nombreCompletoAsesora = `${nombreAsesora} ${apellidoAsesora}`.trim();
-    
+
     // Obtener la fecha actual (fecha de contacto)
     const fechaActual = new Date();
     const dia = String(fechaActual.getDate()).padStart(2, '0');
     const mes = String(fechaActual.getMonth() + 1).padStart(2, '0');
     const anio = fechaActual.getFullYear();
     const fechaContacto = `${dia}/${mes}/${anio}`;
-    
+
     // Crear array con 20 columnas (B hasta U, A no se toca)
     const values = [[
       nombreCompletoAsesora,  // B: REDES
@@ -394,7 +400,7 @@ async function addRowToSheet({
       '',                     // T: OBSERVACIÓN
       estado                  // U: CONFIRMACIÓN
     ]];
-    
+
     const range = `${sheetName}!B${nextRow}:U${nextRow}`;
 
     const response = await sheetsClient.spreadsheets.values.update({
