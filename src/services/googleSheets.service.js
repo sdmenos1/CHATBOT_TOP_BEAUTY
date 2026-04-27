@@ -186,8 +186,15 @@ CAJA_API_URL = CAJA_API_URL.replace(/\/advisors\/?$/, "").replace(/\/$/, "");
 async function getSpreadsheetIdFromApi(branchName, date) {
   try {
     console.log(`🌐 Consultando API para SpreadsheetId: ${branchName} (${date})`);
+    
+    // Normalización: El API de Sistema Caja espera "Envigado" para la sede "Luxury Envigado"
+    let apiBranchName = branchName;
+    if (branchName === "Luxury Envigado") {
+      apiBranchName = "Envigado";
+    }
+
     const response = await axios.get(`${CAJA_API_URL}/chatbot-sheets/active`, {
-      params: { branchName, date }
+      params: { branchName: apiBranchName, date }
     });
     
     if (response.data && response.data.sheet_url) {
@@ -280,7 +287,7 @@ async function addRowToSheet({
           baseEnvVarName = "GOOGLE_SHEETS_ID_MOR";
           break;
         case "Luxury Envigado":
-          baseEnvVarName = "GOOGLE_SHEETS_ID_LUXURY_ENVIGADO";
+          baseEnvVarName = "GOOGLE_SHEETS_ID_ENVIGADO";
           break;
         case "Itagüí":
           baseEnvVarName = "GOOGLE_SHEETS_ID_ITAGUI";
