@@ -177,6 +177,34 @@ async function copyDataValidation(spreadsheetId, sheetId, sourceRow, targetRow) 
   }
 }
 
+const axios = require("axios");
+
+// URL de la API de Sistema Caja (limpiamos si termina en /advisors para tener la base /api)
+let CAJA_API_URL = process.env.CAJA_API_URL || "https://api-sistema-caja.onrender.com/api";
+CAJA_API_URL = CAJA_API_URL.replace(/\/advisors\/?$/, "").replace(/\/$/, "");
+
+async function getSpreadsheetIdFromApi(branchName, date) {
+  try {
+    console.log(`🌐 Consultando API para SpreadsheetId: ${branchName} (${date})`);
+    const response = await axios.get(`${CAJA_API_URL}/chatbot-sheets/active`, {
+      params: { branchName, date }
+    });
+    
+    if (response.data && response.data.sheet_url) {
+      // Extraer ID de la URL si es necesario o usar el campo que venga
+      const url = response.data.sheet_url;
+      const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+      const id = match ? match[1] : url;
+      console.log(`✅ SpreadsheetId obtenido de API: ${id}`);
+      return id;
+    }
+    return null;
+  } catch (error) {
+    console.warn(`⚠️ Error consultando API de Hojas: ${error.message}`);
+    return null;
+  }
+}
+
 async function addRowToSheet({
   local,
   nombre,
@@ -203,142 +231,99 @@ async function addRowToSheet({
     }
 
     console.log(`📍 Local recibido: "${local}"`);
-    console.log(`📍 Longitud: ${local?.length}`);
-    console.log(`📍 Caracteres: ${JSON.stringify(local?.split('').map(c => c.charCodeAt(0)))}`);
 
-    let baseEnvVarName;
-    switch (local) {
-      case "Chimbote":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_CHIMBOTE";
-        break;
-      case "Trujillo":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_TRUJILLO";
-        break;
-      case "Olivos": // backward compatibility
-      case "Los Olivos":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_OLIVOS";
-        break;
-      case "Arequipa":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_AREQUIPA";
-        break;
-      case "Lince":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_LINCE";
-        break;
-      case "Pucallpa":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_PUCALLPA";
-        break;
-      case "Luxury":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_LUXURY";
-        break;
-      case "Medellin": // legacy without accent
-      case "Medellín":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_MEDELLIN";
-        break;
-      case "Chapineros": // legacy plural
-      case "Chapinero":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_CHAPINEROS";
-        break;
-      case "Los Leones":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_LOS_LEONES";
-        break;
-      case "Providencia":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_PROVIDENCIA";
-        break;
-      case "Chico":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_CHICO";
-        break;
-      case "Mor":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_MOR";
-        break;
-      case "Luxury Envigado":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_LUXURY_ENVIGADO";
-        break;
-      case "Itagüí":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_ITAGUI";
-        break;
-      case "Unilago":
-        baseEnvVarName = "GOOGLE_SHEETS_ID_UNILAGO";
-        break;
-      default:
-        baseEnvVarName = "GOOGLE_SHEETS_ID";
-    }
+    // 1. Intentar obtener el ID desde la API (NUEVA LÓGICA)
+    let spreadsheetId = await getSpreadsheetIdFromApi(local, fecha);
 
-    // Debug: Verificar variables de entorno disponibles para el local actual
-    const envVars = Object.keys(process.env).filter(k => k.includes('GOOGLE_SHEETS_ID') && k.includes(baseEnvVarName?.split('_').pop() || ''));
-    console.log(`🔍 Variables ${local} encontradas: ${envVars.length}`);
-    envVars.forEach(v => console.log(`   - ${v}: ${process.env[v] ? '✅ Set' : '❌ Undefined'} (longitud: ${process.env[v]?.length || 0})`));
+    // 2. FALLBACK: Lógica antigua si la API falla o no devuelve nada
+    if (!spreadsheetId) {
+      console.log("🔍 Usando lógica de fallback (.env)");
+      let baseEnvVarName;
+      switch (local) {
+        case "Chimbote":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_CHIMBOTE";
+          break;
+        case "Trujillo":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_TRUJILLO";
+          break;
+        case "Olivos": 
+        case "Los Olivos":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_OLIVOS";
+          break;
+        case "Arequipa":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_AREQUIPA";
+          break;
+        case "Lince":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_LINCE";
+          break;
+        case "Luxury":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_LUXURY";
+          break;
+        case "Medellin":
+        case "Medellín":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_MEDELLIN";
+          break;
+        case "Chapineros":
+        case "Chapinero":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_CHAPINEROS";
+          break;
+        case "Los Leones":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_LOS_LEONES";
+          break;
+        case "Providencia":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_PROVIDENCIA";
+          break;
+        case "Chico":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_CHICO";
+          break;
+        case "Mor":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_MOR";
+          break;
+        case "Luxury Envigado":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_LUXURY_ENVIGADO";
+          break;
+        case "Itagüí":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_ITAGUI";
+          break;
+        case "Unilago":
+          baseEnvVarName = "GOOGLE_SHEETS_ID_UNILAGO";
+          break;
+        default:
+          baseEnvVarName = "GOOGLE_SHEETS_ID";
+      }
 
-    // Determinar qué Google Sheet usar según el mes
-    let spreadsheetId = null;
-    let sheetName;
-
-    try {
       const [dd, mm, yyyy] = fecha.split("/");
-      const day = parseInt(dd, 10);
       const month = parseInt(mm, 10);
       const year = parseInt(yyyy, 10);
 
-      // El nombre de la hoja será solo el día (1, 2, 3, etc.)
-      sheetName = day.toString();
+      // Mapeo de meses para fallback
+      const monthMap = { 1: "ENE", 2: "FEB", 3: "MAR", 4: "ABR", 5: "MAY", 12: "DIC" };
+      const monthLabel = monthMap[month];
 
-      // Intentar usar el Google Sheet específico del mes primero
-      if (baseEnvVarName && year === 2025 && month === 12) {
-        // Diciembre 2025
-        spreadsheetId = process.env[`${baseEnvVarName}_DIC_2025`];
-        if (spreadsheetId) {
-          console.log("🔁 Usando Google Sheet específico para Diciembre 2025");
-        }
-      } else if (baseEnvVarName && year === 2026 && month === 1) {
-        // Enero 2026
-        spreadsheetId = process.env[`${baseEnvVarName}_ENE_2026`];
-        if (spreadsheetId) {
-          console.log("🔁 Usando Google Sheet específico para Enero 2026");
-        }
-      } else if (baseEnvVarName && year === 2026 && month === 2) {
-        // Febrero 2026
-        spreadsheetId = process.env[`${baseEnvVarName}_FEB_2026`];
-        if (spreadsheetId) {
-          console.log("🔁 Usando Google Sheet específico para Febrero 2026");
-        }
-      } else if (baseEnvVarName && year === 2026 && month === 3) {
-        // Marzo 2026
-        spreadsheetId = process.env[`${baseEnvVarName}_MAR_2026`];
-        if (spreadsheetId) {
-          console.log("🔁 Usando Google Sheet específico para Marzo 2026");
-        }
-      } else if (baseEnvVarName && year === 2026 && month === 4) {
-        // Abril 2026
-        spreadsheetId = process.env[`${baseEnvVarName}_ABR_2026`];
-        if (spreadsheetId) {
-          console.log("🔁 Usando Google Sheet específico para Abril 2026");
-        }
-      } else if (baseEnvVarName && year === 2026 && month === 5) {
-        // Mayo 2026
-        spreadsheetId = process.env[`${baseEnvVarName}_MAY_2026`];
-        if (spreadsheetId) {
-          console.log("🔁 Usando Google Sheet específico para Mayo 2026");
-        }
+      if (baseEnvVarName && monthLabel) {
+        spreadsheetId = process.env[`${baseEnvVarName}_${monthLabel}_${year}`];
       }
 
-      // Si no hay ID mensual específico, usar el base
       if (!spreadsheetId && baseEnvVarName) {
-        spreadsheetId = process.env[baseEnvVarName];
-        console.log(" Usando Google Sheet base (no hay específico para este mes)");
-      }
-
-      console.log(`📊 DEBUG: SpreadsheetId final: ${spreadsheetId}`);
-      console.log(`📊 DEBUG: Nombre de hoja: ${sheetName}`);
-    } catch (e) {
-      console.log("⚠️  Error parseando fecha, usando formato por defecto");
-      sheetName = fecha.replace(/\//g, "-"); // Fallback al formato antiguo
-      // Intentar obtener el base si hay error
-      if (baseEnvVarName) {
         spreadsheetId = process.env[baseEnvVarName];
       }
     }
 
-    console.log(`📅 Guardando en la pestaña: ${sheetName}`);
-    console.log(`🔑 SpreadsheetId: ${spreadsheetId}`);
+    // Determinar nombre de hoja (siempre el día)
+    let sheetName;
+    try {
+      const day = parseInt(fecha.split("/")[0], 10);
+      sheetName = day.toString();
+    } catch (e) {
+      sheetName = fecha.replace(/\//g, "-");
+    }
+
+    console.log(`📊 SpreadsheetId final: ${spreadsheetId}`);
+    console.log(`📅 Hoja: ${sheetName}`);
+
+    if (!spreadsheetId) {
+      throw new Error(`No se pudo encontrar un SpreadsheetId para el local ${local}`);
+    }
 
     const nextRow = await findNextEmptyRow(spreadsheetId, sheetName);
 
